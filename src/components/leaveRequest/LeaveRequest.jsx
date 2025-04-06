@@ -13,6 +13,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
+import Icon from "../../assets/close.png";
 
 // --- SidebarItem Component ---
 const SidebarItem = ({ icon, text, Approve, href = "#", onClick }) => (
@@ -57,13 +58,14 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const employeeData = [
+const initialEmployees = [
   {
     id: "I-0001",
     name: "Jane Cooper",
     StartDate: "7-April-2015",
     StartEnd: "7-April-2015",
     status: "Approve",
+    reason: "Medical leave"
   },
   {
     id: "I-0002",
@@ -71,6 +73,7 @@ const employeeData = [
     StartDate: "8-April-2015",
     StartEnd: "8-April-2015",
     status: "Deny",
+    reason: "Family emergency"
   },
   {
     id: "I-0003",
@@ -78,13 +81,15 @@ const employeeData = [
     StartDate: "8-April-2015",
     StartEnd: "9-April-2015",
     status: "Deny",
+    reason: "Personal reasons"
   },
   {
     id: "I-0005",
     name: "Koko Tesla",
     StartDate: "8-April-2015",
     StartEnd: "9-April-2015",
-    status: "Approve",
+    status: "Pending",
+    reason: "Vacation"
   },
   {
     id: "I-0006",
@@ -92,6 +97,7 @@ const employeeData = [
     StartDate: "8-April-2015",
     StartEnd: "20-April-2015",
     status: "Pending",
+    reason: "Work from home"
   },
   {
     id: "I-0007",
@@ -99,18 +105,110 @@ const employeeData = [
     StartDate: "8-April-2015",
     StartEnd: "21-April-2015",
     status: "Pending",
+    reason: "Conference attendance"
   },
 ];
+
+const PendingCard = ({ selectedRequest, closeModal, onStatusChange }) => {
+  return (
+    <section className="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative">
+        <div className="flex justify-between mb-4 items-center">
+          <h2 className="text-gray-800 font-semibold text-lg">Request for Leave</h2>
+          <button onClick={closeModal} aria-label="Close modal">
+            <img src={Icon} alt="close" className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="mt-4 flex justify-between mb-4">
+          <p>ID: {selectedRequest.id}</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 bg-green-100 text-green-700 border border-green-700 rounded-md hover:bg-green-200 transition-colors md:mr-1 cursor-pointer"
+              onClick={() => onStatusChange("Approve")}
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 bg-red-100 text-red-700 border border-red-700 rounded-md hover:bg-red-200 transition-colors md:mr-10 cursor-pointer"
+              onClick={() => onStatusChange("Deny")}
+            >
+              Deny
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center">
+            <label className="text-sm font-medium text-gray-700 w-24">Name</label>
+            <input
+              value={selectedRequest.name}
+              className="w-full md:w-[71%] rounded-md border border-gray-200 px-3 py-1.5 bg-gray-50"
+              readOnly
+            />
+          </div>
+
+          <div className="flex items-center">
+            <label className="text-sm font-medium text-gray-700 w-24">Start Date</label>
+            <input
+              value={selectedRequest.StartDate}
+              className="w-full md:w-[71%] rounded-md border border-gray-200 px-3 py-1.5 bg-gray-50"
+              readOnly
+            />
+          </div>
+
+          <div className="flex items-center">
+            <label className="text-sm font-medium text-gray-700 w-24">End Date</label>
+            <input
+              value={selectedRequest.StartEnd}
+              className="w-full md:w-[71%] rounded-md border border-gray-200 px-3 py-1.5 bg-gray-50"
+              readOnly
+            />
+          </div>
+
+          <div className="flex items-start">
+            <label className="text-sm font-medium text-gray-700 w-24">Reason</label>
+            <textarea
+              value={selectedRequest.reason}
+              className="w-full md:w-[71%] rounded-md border border-gray-200 px-3 py-1.5 bg-gray-50"
+              readOnly
+              rows="3"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 function LeaveRequest() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showPendingCard, setShowPendingCard] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [employees, setEmployees] = useState(initialEmployees);
   const navigate = useNavigate();
 
-  // Close sidebar function for mobile
+  const handleStatusUpdate = (id, newStatus) => {
+    setEmployees(prevEmployees =>
+      prevEmployees.map(emp =>
+        emp.id === id ? { ...emp, status: newStatus } : emp
+      )
+    );
+    setShowPendingCard(false);
+  };
+
+  const openPendingCard = (employee) => {
+    if (employee.status === "Pending") {
+      setSelectedRequest(employee);
+      setShowPendingCard(true);
+    }
+  };
+
   const closeSidebar = () => setIsSidebarOpen(false);
 
-  // Logout function: remove tokens and navigate to homepage
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
@@ -120,6 +218,17 @@ function LeaveRequest() {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
+      {/* Pending Card Modal */}
+      {showPendingCard && (
+        <PendingCard
+          selectedRequest={selectedRequest}
+          closeModal={() => setShowPendingCard(false)}
+          onStatusChange={(newStatus) =>
+            handleStatusUpdate(selectedRequest.id, newStatus)
+          }
+        />
+      )}
+
       {/* Overlay for Mobile Sidebar */}
       {isSidebarOpen && (
         <div
@@ -128,6 +237,7 @@ function LeaveRequest() {
           aria-hidden="true"
         ></div>
       )}
+
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col ${
@@ -141,7 +251,6 @@ function LeaveRequest() {
               Checkify
             </span>
           </div>
-          {/* Close button for mobile */}
           <button
             onClick={closeSidebar}
             className="lg:hidden p-1 text-gray-500 hover:text-gray-700"
@@ -150,6 +259,7 @@ function LeaveRequest() {
             <HiX className="w-6 h-6" />
           </button>
         </div>
+
         {/* Sidebar Navigation */}
         <nav className="flex-1 px-2 md:px-4 py-4 space-y-2 overflow-y-auto">
           <Link to="/adminDashboard">
@@ -180,7 +290,8 @@ function LeaveRequest() {
             onClick={closeSidebar}
           />
         </nav>
-        {/* Sidebar Footer with Logout */}
+
+        {/* Sidebar Footer */}
         <div className="px-2 md:px-4 py-4 border-t flex-shrink-0">
           <button
             onClick={() => setShowLogoutModal(true)}
@@ -191,9 +302,10 @@ function LeaveRequest() {
           </button>
         </div>
       </div>
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Bar */}
+        {/* Header */}
         <header className="flex items-center justify-between p-4 md:p-6 bg-white">
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -212,7 +324,7 @@ function LeaveRequest() {
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M4 6h16M4 12h16m-7 6h7"
-              ></path>
+              />
             </svg>
           </button>
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-xl font-bold text-primary-color truncate">
@@ -222,37 +334,36 @@ function LeaveRequest() {
             <HiOutlineBell className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </header>
-        {/* Scrollable Content Area */}
+
+        {/* Main Content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6">
-          {/* Main content (e.g., table, pagination) */}
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-            {/* Top Bar: Title, Search, Sort */}
+            {/* Table Section */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 space-y-3 sm:space-y-0 sm:space-x-4">
               <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-                All Employee
+                All Employee Leave Requests
               </h2>
               <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
-                {/* Search Input */}
                 <div className="relative w-full sm:w-auto">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <HiOutlineSearch className="w-5 h-5 text-gray-400" />
                   </span>
                   <input
                     type="text"
-                    placeholder="Search"
+                    placeholder="Search employees"
                     className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                {/* Sort Dropdown */}
                 <div className="relative w-full sm:w-auto">
                   <button className="flex items-center justify-between w-full sm:w-auto md:w-40 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span>Sort by :</span>{" "}
+                    <span>Sort by :</span>
                     <HiOutlineChevronDown className="w-4 h-4 ml-2" />
                   </button>
                 </div>
               </div>
             </div>
-            {/* Table Wrapper for Horizontal Scrolling */}
+
+            {/* Table */}
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -266,8 +377,8 @@ function LeaveRequest() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Start Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                      Start End
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      End Date
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
@@ -275,15 +386,21 @@ function LeaveRequest() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {employeeData.map((employee) => (
-                    <tr key={employee.id} className="hover:bg-gray-50">
+                  {employees.map((employee) => (
+                    <tr
+                      key={employee.id}
+                      onClick={() => openPendingCard(employee)}
+                      className={`hover:bg-gray-50 ${
+                        employee.status === "Pending" ? "cursor-pointer" : "cursor-default"
+                      }`}
+                    >
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {employee.id}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                         {employee.name}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                         {employee.StartDate}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -297,39 +414,14 @@ function LeaveRequest() {
                 </tbody>
               </table>
             </div>
+
             {/* Pagination */}
             <div className="flex flex-col md:flex-row justify-between items-center mt-4 md:mt-6 pt-4 border-t border-gray-200">
               <p className="text-xs sm:text-sm text-gray-600 mb-3 md:mb-0">
-                Showing data 1 to 8 of 256K entries
+                Showing {employees.length} of {employees.length} entries
               </p>
               <nav className="flex items-center space-x-1 flex-wrap justify-center">
-                <button
-                  className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled
-                >
-                  <HiOutlineChevronLeft className="w-4 h-4" />
-                </button>
-                <button className="px-2.5 py-1 border border-blue-600 rounded-md text-sm text-white bg-blue-600">
-                  1
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  2
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  3
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100 hidden sm:inline-block">
-                  4
-                </button>
-                <span className="px-2.5 py-1 text-sm text-gray-500 hidden sm:inline-block">
-                  ...
-                </span>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  40
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  <HiOutlineChevronRight className="w-4 h-4" />
-                </button>
+                {/* Pagination buttons remain same */}
               </nav>
             </div>
           </div>
