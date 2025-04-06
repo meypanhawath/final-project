@@ -8,14 +8,16 @@ import AdminDB from './components/dashboard/AdminDB'
 import EmpDB from './components/dashboard/EmpDB'
 import EmployeeInfo from './components/dashboard-content/EmployeeInfo'
 import Empdashboard from './components/dashboard-content/Empdashboard'
+import EmpProfile from './components/emp-profile/EmpProfile'
+import EmpAttendance from './components/attendance/EmpAttendance'
 import LoginFormik from './components/login/LoginFormik'
 import ProgressScrollBar from './components/scroll/ProgressScrollBar';
 import SidebarTest from './components/sidebar/SidebarTest';
 import Sidebar from './components/sidebar/Sidebar';
+import SidebarEmp from './components/sidebar/SidebarEmp'
 import Attendance from './components/attendance/Attendance'
 import LeaveRequest from './components/leaveRequest/LeaveRequest'
 
-import Login from './components/login/Login';
 import Card from './components/card/Card';
 import Grid from './components/grid/Grid';
 import { Routes, Route } from "react-router-dom";
@@ -26,18 +28,20 @@ const App = () => {
     
     <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/login' element={<Login />} />
         <Route path='/feature' element={<Feature />} />
         <Route path='/about' element={<About />} />
         <Route path='/help' element={<Help />} />
-        <Route path='/empDashboard' element={<EmpDB />} />
+        <Route path='/empDashboard' element={<Empdashboard />} />
         <Route path='/grid' element={<Grid />} />
         <Route path='/adminDashboard' element={<AdminDB />} />
         <Route path='/empInfo' element={<EmployeeInfo />} />
         <Route path='/empAttendance' element={<Attendance />} />
+        <Route path='/Attendance' element={<EmpAttendance />} />
+        <Route path='/empProfile' element={<EmpProfile />} />
         <Route path='/empLeave' element={<LeaveRequest />} />
         <Route path='/loginformik' element={<LoginFormik />} />
         <Route path='/sidebar' element={<Sidebar />} />
+        <Route path='/sidebarEmp' element={<SidebarEmp />} />
     </Routes>
     <ProgressScrollBar />
 

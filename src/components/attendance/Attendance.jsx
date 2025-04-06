@@ -119,7 +119,7 @@ function Attendance() {
       {/* Overlay for Mobile Sidebar */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-[rgba(0,0,0,0.3)] z-30 lg:hidden"
           onClick={closeSidebar} // Close sidebar when overlay is clicked
           aria-hidden="true"
         ></div>
@@ -133,24 +133,10 @@ function Attendance() {
                 `}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between h-16 md:h-20 border-b flex-shrink-0 px-4">
+        <div className="flex items-center justify-between h-16 md:h-20 border-b flex-shrink-0 px-18">
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 bg-primary-color rounded-md mr-2 md:mr-3">
-              <svg
-                className="w-5 h-5 md:w-6 md:h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2 1M4 7l2-1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"
-                />
-              </svg>
-            </div>
+            
+              
             <span className="text-lg md:text-xl font-semibold text-gray-800">
               Checkify
             </span>

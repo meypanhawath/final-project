@@ -36,7 +36,7 @@ const SidebarItem = (
   </a>
 );
 
-const Sidebar2 = () => {
+const SidebarTest = () => {
   // Declare the state for sidebar visibility
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -129,4 +129,4 @@ const Sidebar2 = () => {
   );
 };
 
-export default Sidebar2;
+export default SidebarTest;
