@@ -1,5 +1,5 @@
-import React, { useState } from "react"; // Import useState
-import { Link } from "react-router-dom"
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   HiOutlineViewGrid,
   HiOutlineUsers,
@@ -11,17 +11,14 @@ import {
   HiOutlineChevronDown,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
-  HiX, // Import X icon for closing
+  HiX,
 } from "react-icons/hi";
 
-// --- Reusable Components (Keep StatCard, StatusBadge as before) ---
-// --- SidebarItem (Keep as before) ---
-const SidebarItem = (
-  { icon, text, Approve, href = "#", onClick } // Added onClick prop
-) => (
+// --- SidebarItem Component ---
+const SidebarItem = ({ icon, text, Approve, href = "#", onClick }) => (
   <a
     href={href}
-    onClick={onClick} // Add onClick handler
+    onClick={onClick}
     className={`flex items-center px-4 py-3 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out group ${
       Approve
         ? "bg-primary-color text-white"
@@ -41,24 +38,25 @@ const SidebarItem = (
     />
   </a>
 );
+
 const StatusBadge = ({ status }) => {
-    return (
-      <span
-        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${
-          status === "Approve"
-            ? "bg-green-100 text-green-800"
-            : status === "Deny"
-            ? "bg-red-100 text-red-800"
-            : status === "Pending"
-            ? "bg-yellow-100 text-yellow-800"
-            : "bg-gray-100 text-gray-800" // Default style for unexpected status
-        }`}
-      >
-        {status}
-      </span>
-    );
-  };
-// --- Mock Data (Keep as before) ---
+  return (
+    <span
+      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${
+        status === "Approve"
+          ? "bg-green-100 text-green-800"
+          : status === "Deny"
+          ? "bg-red-100 text-red-800"
+          : status === "Pending"
+          ? "bg-yellow-100 text-yellow-800"
+          : "bg-gray-100 text-gray-800"
+      }`}
+    >
+      {status}
+    </span>
+  );
+};
+
 const employeeData = [
   {
     id: "I-0001",
@@ -99,42 +97,46 @@ const employeeData = [
     id: "I-0007",
     name: "Mic Roza",
     StartDate: "8-April-2015",
-    StartEnd: " 21-April-2015",
+    StartEnd: "21-April-2015",
     status: "Pending",
   },
-
 ];
 
 function LeaveRequest() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for mobile sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
 
-  // Function to close sidebar, can be passed to links if needed
+  // Close sidebar function for mobile
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  // Logout function: remove tokens and navigate to homepage
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
+    setShowLogoutModal(false);
+    navigate("/");
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {" "}
-      {/* Prevent body scroll when sidebar open */}
       {/* Overlay for Mobile Sidebar */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-[rgba(0,0,0,0.3)] z-30 lg:hidden"
-          onClick={closeSidebar} // Close sidebar when overlay is clicked
+          onClick={closeSidebar}
           aria-hidden="true"
         ></div>
       )}
       {/* Sidebar */}
       <div
-        className={`
-                    fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col
-                    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-                    lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0 lg:shadow-md lg:z-auto
-                `}
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0 lg:shadow-md lg:z-auto`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 md:h-20 border-b flex-shrink-0 px-18">
           <div className="flex items-center">
-            
             <span className="text-lg md:text-xl font-semibold text-gray-800">
               Checkify
             </span>
@@ -148,34 +150,29 @@ function LeaveRequest() {
             <HiX className="w-6 h-6" />
           </button>
         </div>
-
         {/* Sidebar Navigation */}
         <nav className="flex-1 px-2 md:px-4 py-4 space-y-2 overflow-y-auto">
-          {/* Pass closeSidebar to items if clicking them should close the menu on mobile */}
           <Link to="/adminDashboard">
-          <SidebarItem
-            icon={HiOutlineViewGrid}
-            text="Dashboard"
-            onClick={closeSidebar}
-          />
+            <SidebarItem
+              icon={HiOutlineViewGrid}
+              text="Dashboard"
+              onClick={closeSidebar}
+            />
           </Link>
-
-          <Link to='/empInfo'>
-          <SidebarItem
-            icon={HiOutlineUsers}
-            text="Employee"
-            onClick={closeSidebar}
-          />
+          <Link to="/empInfo">
+            <SidebarItem
+              icon={HiOutlineUsers}
+              text="Employee"
+              onClick={closeSidebar}
+            />
           </Link>
-
-          <Link to='/empAttendance'>
-          <SidebarItem
-            icon={HiOutlineCalendar}
-            text="Attendance"
-            onClick={closeSidebar}
-          />
+          <Link to="/empAttendance">
+            <SidebarItem
+              icon={HiOutlineCalendar}
+              text="Attendance"
+              onClick={closeSidebar}
+            />
           </Link>
-
           <SidebarItem
             icon={HiOutlineDocumentText}
             text="Leave request"
@@ -183,53 +180,51 @@ function LeaveRequest() {
             onClick={closeSidebar}
           />
         </nav>
-
-        {/* Sidebar Footer */}
+        {/* Sidebar Footer with Logout */}
         <div className="px-2 md:px-4 py-4 border-t flex-shrink-0">
-          <a
-            href="#"
+          <button
+            onClick={() => setShowLogoutModal(true)}
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 group"
           >
             <HiOutlineLogout className="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500 flex-shrink-0" />
             <span className="truncate">Log out</span>
-          </a>
+          </button>
         </div>
       </div>
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header Bar */}
-          <header className="flex items-center justify-between p-4 md:p-6 bg-white">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 mr-2 text-gray-600 hover:text-gray-800 focus:outline-none"
-              aria-label="Open sidebar"
+        {/* Header Bar */}
+        <header className="flex items-center justify-between p-4 md:p-6 bg-white">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="lg:hidden p-2 mr-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+            aria-label="Open sidebar"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                ></path>
-              </svg>
-            </button>
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-xl font-bold text-primary-color truncate">
-              Leave Request
-            </h1>
-            <button className="p-1 ml-auto bg-blue-100 rounded-full text-primary-color hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-              <HiOutlineBell className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-          </header>
-
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-xl font-bold text-primary-color truncate">
+            Leave Request
+          </h1>
+          <button className="p-1 ml-auto bg-blue-100 rounded-full text-primary-color hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <HiOutlineBell className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        </header>
         {/* Scrollable Content Area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6">
-          {/* Rest of the main content (Table, Pagination, etc.) remains the same */}
+          {/* Main content (e.g., table, pagination) */}
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             {/* Top Bar: Title, Search, Sort */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 space-y-3 sm:space-y-0 sm:space-x-4">
@@ -257,40 +252,24 @@ function LeaveRequest() {
                 </div>
               </div>
             </div>
-
             {/* Table Wrapper for Horizontal Scrolling */}
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       ID
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Name
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Start Date
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       Start End
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
@@ -318,11 +297,9 @@ function LeaveRequest() {
                 </tbody>
               </table>
             </div>
-
             {/* Pagination */}
             <div className="flex flex-col md:flex-row justify-between items-center mt-4 md:mt-6 pt-4 border-t border-gray-200">
               <p className="text-xs sm:text-sm text-gray-600 mb-3 md:mb-0">
-                {" "}
                 Showing data 1 to 8 of 256K entries
               </p>
               <nav className="flex items-center space-x-1 flex-wrap justify-center">
@@ -330,7 +307,6 @@ function LeaveRequest() {
                   className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled
                 >
-                  {" "}
                   <HiOutlineChevronLeft className="w-4 h-4" />
                 </button>
                 <button className="px-2.5 py-1 border border-blue-600 rounded-md text-sm text-white bg-blue-600">
@@ -352,7 +328,6 @@ function LeaveRequest() {
                   40
                 </button>
                 <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  {" "}
                   <HiOutlineChevronRight className="w-4 h-4" />
                 </button>
               </nav>
@@ -360,6 +335,30 @@ function LeaveRequest() {
           </div>
         </main>
       </div>
+
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-[rgba(0,0,0,0.3)] z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm mx-auto">
+            <h3 className="text-lg font-semibold mb-4">Confirm Logout</h3>
+            <p className="mb-6">Are you sure you want to log out?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

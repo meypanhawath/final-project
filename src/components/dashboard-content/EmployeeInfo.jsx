@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   HiOutlineViewGrid,
@@ -11,7 +11,7 @@ import {
   HiOutlineChevronDown,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
-  HiX, // X icon for closing
+  HiX,
 } from "react-icons/hi";
 
 // --- Reusable Components ---
@@ -57,70 +57,82 @@ const StatusBadge = ({ status }) => {
 
 // --- Mock Data ---
 const employeeData = [
-  {
-    id: "I-0001",
-    name: "Jane Cooper",
-    department: "Cyber Security",
-    email: "jane@microsoft.com",
-    joiningDate: "26 March 2025",
-    status: "Active",
-  },
-  {
-    id: "I-0002",
-    name: "Doe Laly",
-    department: "Web Design",
-    email: "floyd@yahoo.com",
-    joiningDate: "23 April 2023",
-    status: "Inactive",
-  },
-  {
-    id: "I-0003",
-    name: "John reach",
-    department: "Full Stack Developer",
-    email: "ronald@adobe.com",
-    joiningDate: "03 Set 2024",
-    status: "Inactive",
-  },
-  {
-    id: "I-0004",
-    name: "Koko Tesla",
-    department: "Mobile Developer",
-    email: "marvin@tesla.com",
-    joiningDate: "05 Oct 2023",
-    status: "Active",
-  },
-  {
-    id: "I-0005",
-    name: "Jack bot",
-    department: "Web Design",
-    email: "jerome@google.com",
-    joiningDate: "23 Nov 2022",
-    status: "Active",
-  },
-  {
-    id: "I-0006",
-    name: "Mic Roza",
-    department: "Full Stack Developer",
-    email: "kathryn@microsoft.com",
-    joiningDate: "12 Jan 2019",
-    status: "Active",
-  },
+  { id: "I-0001", name: "Jane Cooper", department: "Cyber Security", email: "jane@microsoft.com", joiningDate: "26 March 2025", status: "Active" },
+  { id: "I-0002", name: "Doe Laly", department: "Web Design", email: "floyd@yahoo.com", joiningDate: "23 April 2023", status: "Inactive" },
+  { id: "I-0003", name: "John reach", department: "Full Stack Developer", email: "ronald@adobe.com", joiningDate: "03 Sept 2024", status: "Inactive" },
+  { id: "I-0004", name: "Koko Tesla", department: "Mobile Developer", email: "marvin@tesla.com", joiningDate: "05 Oct 2023", status: "Active" },
+  { id: "I-0005", name: "Jack bot", department: "Web Design", email: "jerome@google.com", joiningDate: "23 Nov 2022", status: "Active" },
+  { id: "I-0006", name: "Mic Roza", department: "Full Stack Developer", email: "kathryn@microsoft.com", joiningDate: "12 Jan 2019", status: "Active" },
+  { id: "I-0007", name: "Sarah Connor", department: "Cyber Security", email: "sarah@skynet.com", joiningDate: "15 Feb 2024", status: "Active" },
+  { id: "I-0008", name: "John Doe", department: "Mobile Developer", email: "john@example.com", joiningDate: "01 Mar 2023", status: "Inactive" },
+  { id: "I-0009", name: "Alice Smith", department: "Web Design", email: "alice@company.com", joiningDate: "10 Apr 2022", status: "Active" },
+  { id: "I-0010", name: "Bob Johnson", department: "Full Stack Developer", email: "bob@tech.org", joiningDate: "05 May 2021", status: "Active" },
+  { id: "I-0011", name: "Eva Williams", department: "Cyber Security", email: "eva@security.com", joiningDate: "20 Jun 2020", status: "Inactive" },
+  { id: "I-0012", name: "Mike Brown", department: "Mobile Developer", email: "mike@dev.io", joiningDate: "15 Jul 2019", status: "Active" },
+  { id: "I-0013", name: "Lucy Davis", department: "Web Design", email: "lucy@design.co", joiningDate: "30 Aug 2023", status: "Active" },
+  { id: "I-0014", name: "Peter Wilson", department: "Full Stack Developer", email: "peter@fullstack.dev", joiningDate: "25 Sep 2022", status: "Inactive" },
+  { id: "I-0015", name: "Emma Taylor", department: "Cyber Security", email: "emma@secure.net", joiningDate: "12 Oct 2021", status: "Active" },
+  { id: "I-0016", name: "David Martinez", department: "Mobile Developer", email: "david@mobileapp.com", joiningDate: "05 Nov 2020", status: "Active" },
+  { id: "I-0017", name: "Sophia Anderson", department: "Web Design", email: "sophia@web.design", joiningDate: "20 Dec 2019", status: "Inactive" },
+  { id: "I-0018", name: "James Thomas", department: "Full Stack Developer", email: "james@fullstack.io", joiningDate: "15 Jan 2023", status: "Active" },
+  { id: "I-0019", name: "Olivia Jackson", department: "Cyber Security", email: "olivia@cyber.shield", joiningDate: "10 Feb 2022", status: "Active" },
+  { id: "I-0020", name: "Liam White", department: "Mobile Developer", email: "liam@flutter.dev", joiningDate: "05 Mar 2021", status: "Inactive" },
+  { id: "I-0021", name: "Mia Harris", department: "Web Design", email: "mia@uiux.design", joiningDate: "20 Apr 2020", status: "Active" },
+  { id: "I-0022", name: "Noah Clark", department: "Full Stack Developer", email: "noah@nodejs.dev", joiningDate: "15 May 2019", status: "Active" },
+  { id: "I-0023", name: "Ava Lewis", department: "Cyber Security", email: "ava@secure.tech", joiningDate: "10 Jun 2023", status: "Inactive" },
+  { id: "I-0024", name: "William Walker", department: "Mobile Developer", email: "will@kotlin.dev", joiningDate: "05 Jul 2022", status: "Active" },
+  { id: "I-0025", name: "Isabella Hall", department: "Web Design", email: "bella@webdesign.co", joiningDate: "20 Aug 2021", status: "Active" },
+  { id: "I-0026", name: "Benjamin Young", department: "Full Stack Developer", email: "ben@mern.dev", joiningDate: "15 Sep 2020", status: "Inactive" },
+  { id: "I-0027", name: "Charlotte King", department: "Cyber Security", email: "charlie@hackerproof.com", joiningDate: "10 Oct 2019", status: "Active" },
+  { id: "I-0028", name: "Lucas Scott", department: "Mobile Developer", email: "lucas@reactnative.dev", joiningDate: "05 Nov 2023", status: "Active" },
+  { id: "I-0029", name: "Amelia Green", department: "Web Design", email: "amelia@cssmaster.com", joiningDate: "20 Dec 2022", status: "Inactive" },
+  { id: "I-0030", name: "Henry Adams", department: "Full Stack Developer", email: "henry@python.dev", joiningDate: "15 Jan 2021", status: "Active" }
 ];
 
 function EmployeeInfo() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
   const navigate = useNavigate();
 
-  // Function to close sidebar, can be passed to links if needed
+  // Filter employees based on search term
+  const filteredEmployees = employeeData.filter((employee) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      employee.name.toLowerCase().includes(searchLower) ||
+      employee.department.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const indexOfLastEmployee = currentPage * itemsPerPage;
+  const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
+  const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   const closeSidebar = () => setIsSidebarOpen(false);
 
-  // Logout confirmation: clear token, close modal and navigate home
   const handleLogoutConfirm = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
     setShowLogoutConfirm(false);
     navigate("/");
+  };
+
+  // Generate page numbers
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
   };
 
   return (
@@ -133,6 +145,7 @@ function EmployeeInfo() {
           aria-hidden="true"
         ></div>
       )}
+
       {/* Sidebar */}
       <div
         className={`
@@ -148,7 +161,6 @@ function EmployeeInfo() {
               Checkify
             </span>
           </div>
-          {/* Close button for mobile */}
           <button
             onClick={closeSidebar}
             className="lg:hidden p-1 text-gray-500 hover:text-gray-700"
@@ -168,7 +180,6 @@ function EmployeeInfo() {
             />
           </Link>
 
-          {/* Employee item uses a right arrow */}
           <SidebarItem
             icon={HiOutlineUsers}
             text="Employee"
@@ -254,8 +265,10 @@ function EmployeeInfo() {
                   </span>
                   <input
                     type="text"
-                    placeholder="Search"
+                    placeholder="name or department"
                     className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 {/* Sort Dropdown */}
@@ -293,30 +306,38 @@ function EmployeeInfo() {
                       Status
                     </th>
                   </tr>
-                </thead>
+                  </thead>
                 <tbody className="block md:table-row-group">
-                  {employeeData.map((employee) => (
-                    <tr key={employee.id} className="border-b border-gray-200 block md:table-row hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 block md:table-cell">
-                        {employee.id}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
-                        {employee.name}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
-                        {employee.department}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs block md:table-cell">
-                        {employee.email}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
-                        {employee.joiningDate}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm block md:table-cell">
-                        <StatusBadge status={employee.status} />
+                  {currentEmployees.length === 0 ? (
+                    <tr className="block md:table-row">
+                      <td colSpan="6" className="px-4 py-6 text-center text-gray-500">
+                        No employees found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    currentEmployees.map((employee) => (
+                      <tr key={employee.id} className="border-b border-gray-200 block md:table-row hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 block md:table-cell">
+                          {employee.id}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
+                          {employee.name}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
+                          {employee.department}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs block md:table-cell">
+                          {employee.email}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
+                          {employee.joiningDate}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm block md:table-cell">
+                          <StatusBadge status={employee.status} />
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -324,34 +345,38 @@ function EmployeeInfo() {
             {/* Pagination */}
             <div className="flex flex-col md:flex-row justify-between items-center mt-4 md:mt-6 pt-4 border-t border-gray-200">
               <p className="text-xs sm:text-sm text-gray-600 mb-3 md:mb-0">
-                Showing data 1 to 8 of 256K entries
+                Showing {indexOfFirstEmployee + 1} to{" "}
+                {Math.min(indexOfLastEmployee, filteredEmployees.length)} of{" "}
+                {filteredEmployees.length} entries
               </p>
               <nav className="flex items-center space-x-1 flex-wrap justify-center">
                 <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
                   className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled
                 >
                   <HiOutlineChevronLeft className="w-4 h-4" />
                 </button>
-                <button className="px-2.5 py-1 border border-blue-600 rounded-md text-sm text-white bg-blue-600">
-                  1
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  2
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  3
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100 hidden sm:inline-block">
-                  4
-                </button>
-                <span className="px-2.5 py-1 text-sm text-gray-500 hidden sm:inline-block">
-                  ...
-                </span>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
-                  40
-                </button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+
+                {getPageNumbers().map((number) => (
+                  <button
+                    key={number}
+                    onClick={() => setCurrentPage(number)}
+                    className={`px-2.5 py-1 border rounded-md text-sm ${
+                      currentPage === number
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-2.5 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <HiOutlineChevronRight className="w-4 h-4" />
                 </button>
               </nav>
@@ -360,7 +385,7 @@ function EmployeeInfo() {
         </main>
       </div>
 
-      {/* Logout Confirmation Modal with 30% Dark Overlay */}
+      {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.3)]">
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md mx-4">
