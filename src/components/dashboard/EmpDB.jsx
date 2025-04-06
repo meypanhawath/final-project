@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Sidebar from '../sidebar/Sidebar'
 import Sun from '../../assets/sun.png';
 import Avatars from '../../assets/profile.png';
 import Accounts from '../../assets/Group.png';
