@@ -141,7 +141,7 @@ function EmployeeInfo() {
 
   useEffect(() => {
     let accessToken = localStorage.getItem("accessToken");
-    EmpService.getAllEmployee(accessToken,currentPage-1,5).then(response => {
+    EmpService.getAllEmployee(accessToken,currentPage-1,6).then(response => {
       console.log("Getting all employee: ", response.data);
       setEmployees(response.data._embedded.employees);
     }
@@ -337,7 +337,7 @@ function EmployeeInfo() {
                           {employee.id}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
-                          {employee.name}
+                          {employee.firstName + " " + employee.lastName}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                           {employee.department}

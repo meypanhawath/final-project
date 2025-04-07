@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import pic1 from "../../assets/adminDB-pic-2.png";
 import {
@@ -11,6 +11,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
+import EmpService from "../../services/EmpService"
 
 // Reusable Components
 const SidebarItem = (
@@ -136,6 +137,20 @@ function AdminDB() {
     // Redirect to login page
     navigate("/");
   };
+
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    let accessToken = localStorage.getItem("accessToken");
+    EmpService.getAllEmployee(accessToken,0,4).then(response => {
+      console.log("Getting all employee: ", response.data);
+      setEmployees(response.data._embedded.employees);
+    }
+    )
+    .catch(error => {
+      console.error("Error fetching employees: ", error);
+    })
+  }, [])
 
   return (
     <>
@@ -294,28 +309,23 @@ function AdminDB() {
                         </tr>
                       </thead>
                       <tbody>
-                        {attendanceData.map((item) => (
+                        {employees.map((employees) => (
                           <tr
-                            key={item.id}
+                            key={employees.id}
                             className="border-b border-gray-100 last:border-b-0"
                           >
                             <td className="py-3 md:py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <img
-                                  className="h-8 w-8 rounded-full"
-                                  src={item.avatar}
-                                  alt={item.name}
-                                />
                                 <div className="ml-3 md:ml-4 text-sm font-medium text-gray-900 truncate">
-                                  {item.name}
+                                  {employees.firstName + " " + employees.lastName}
                                 </div>
                               </div>
                             </td>
                             <td className="py-3 md:py-4 px-2 md:px-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                              {item.department}
+                              {employees.department}
                             </td>
                             <td className="py-3 md:py-4 whitespace-nowrap text-sm">
-                              <StatusBadge status={item.status} />
+                              <StatusBadge status={employees.status} />
                             </td>
                           </tr>
                         ))}

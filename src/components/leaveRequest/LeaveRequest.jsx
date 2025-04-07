@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   HiOutlineViewGrid,
@@ -14,6 +14,7 @@ import {
   HiX,
 } from "react-icons/hi";
 import Icon from "../../assets/close.png";
+import EmpLeave from "../../services/EmpLeave"
 
 // --- SidebarItem Component ---
 const SidebarItem = ({ icon, text, Approve, href = "#", onClick }) => (
@@ -216,6 +217,22 @@ function LeaveRequest() {
     navigate("/");
   };
 
+  const [leaveRequests, setLeave] = useState([]);
+
+  useEffect(() => {
+    let accessToken = localStorage.getItem("accessToken");
+    EmpLeave.getAllLeave(accessToken,0,6).then(response => {
+      console.log("Getting all Leave ", response.data);
+      setLeave(response.data._embedded.leaveRequests);
+    }
+    )
+    .catch(error => {
+      console.error("Error fetching Leave: ", error);
+    })
+  }, [])
+
+  
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Pending Card Modal */}
@@ -386,28 +403,28 @@ function LeaveRequest() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {employees.map((employee) => (
+                  {leaveRequests.map((leaveRequests) => (
                     <tr
-                      key={employee.id}
-                      onClick={() => openPendingCard(employee)}
+                      key={leaveRequests.id}
+                      onClick={() => openPendingCard(leaveRequests)}
                       className={`hover:bg-gray-50 ${
-                        employee.status === "Pending" ? "cursor-pointer" : "cursor-default"
+                        leaveRequests.status === "Pending" ? "cursor-pointer" : "cursor-default"
                       }`}
                     >
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {employee.id}
+                        {leaveRequests.id}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {employee.name}
+                        {leaveRequests.name}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {employee.StartDate}
+                        {leaveRequests.startDate}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {employee.StartEnd}
+                        {leaveRequests.endDate}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <StatusBadge status={employee.status} />
+                        <StatusBadge status={leaveRequests.status} />
                       </td>
                     </tr>
                   ))}

@@ -13,6 +13,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
+import EmpAttendance from "../../services/empAttendance";
 
 // SidebarItem Component
 const SidebarItem = ({ icon, text, Present, href = "#", onClick }) => (
@@ -167,6 +168,20 @@ function Attendance() {
     }
     return pageNumbers;
   };
+
+  const [attendances, setAttendances] = useState([]);
+
+  useEffect(() => {
+    let accessToken = localStorage.getItem("accessToken");
+    EmpAttendance.getAllAttendances(accessToken,currentPage-1,6).then(response => {
+      console.log("Getting all Attendance: ", response.data);
+      setAttendances(response.data._embedded.attendances);
+    }
+    )
+    .catch(error => {
+      console.error("Error fetching attendance: ", error);
+    })
+  }, [currentPage])
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -327,25 +342,25 @@ function Attendance() {
                       </td>
                     </tr>
                   ) : (
-                    currentEmployees.map((employee) => (
-                      <tr key={`${employee.id}-${employee.date}`} className="hover:bg-gray-50">
+                    attendances.map((attendances) => (
+                      <tr key={`${attendances.id}-${attendances.date}`} className="hover:bg-gray-50">
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {employee.id}
+                          {attendances.id}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {employee.name}
+                          {attendances.name}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {employee.date}
+                          {attendances.date}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {employee.checkIn}
+                          {attendances.checkInTime}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {employee.checkOut}
+                          {attendances.checkOutTime}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm">
-                          <StatusBadge status={employee.status} />
+                          <StatusBadge status={attendances.status} />
                         </td>
                       </tr>
                     ))
