@@ -14,6 +14,8 @@ import {
   HiX,
 } from "react-icons/hi";
 
+import EmpService from "../../services/empService"; // Adjust the import path as necessary
+
 // --- Reusable Components ---
 const SidebarItem = ({ icon, text, active, href = "#", onClick, arrowIcon }) => {
   const ArrowIcon = arrowIcon || HiOutlineChevronDown;
@@ -134,6 +136,20 @@ function EmployeeInfo() {
     }
     return pageNumbers;
   };
+
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    let accessToken = localStorage.getItem("accessToken");
+    EmpService.getAllEmployee(accessToken,currentPage-1,5).then(response => {
+      console.log("Getting all employee: ", response.data);
+      setEmployees(response.data._embedded.employees);
+    }
+    )
+    .catch(error => {
+      console.error("Error fetching employees: ", error);
+    })
+  }, [currentPage])
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -315,7 +331,7 @@ function EmployeeInfo() {
                       </td>
                     </tr>
                   ) : (
-                    currentEmployees.map((employee) => (
+                    employees.map((employee) => (
                       <tr key={employee.id} className="border-b border-gray-200 block md:table-row hover:bg-gray-50">
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 block md:table-cell">
                           {employee.id}
