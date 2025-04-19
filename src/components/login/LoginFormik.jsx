@@ -65,7 +65,7 @@ const LoadingSpinner = () => (
 const LoginFormik = () => {
   const navigate = useNavigate();
   const [showInvalidModal, setShowInvalidModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   useEffect(() => {
     AOS.init({

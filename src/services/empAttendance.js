@@ -1,6 +1,6 @@
 import api from '../api';
 
-const EmpAttendance = {
+const EmpAttendances = {
   // Register new user
   getAllAttendances: (token, page=0, size=20) => api.get(`attendances?page=${page}&size=${size}`, {headers: {
             Authorization: `Bearer ${token}`,
@@ -9,4 +9,4 @@ const EmpAttendance = {
 
 }
 
-export default EmpAttendance
+export default EmpAttendances

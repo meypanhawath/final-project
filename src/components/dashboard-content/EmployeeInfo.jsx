@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   HiOutlineViewGrid,
   HiOutlineUsers,
@@ -14,7 +15,12 @@ import {
   HiX,
 } from "react-icons/hi";
 
-import EmpService from "../../services/empService"; // Adjust the import path as necessary
+import EmpService from "../../services/empService";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
+
+
+
 
 // --- Reusable Components ---
 const SidebarItem = ({ icon, text, active, href = "#", onClick, arrowIcon }) => {
@@ -45,75 +51,127 @@ const SidebarItem = ({ icon, text, active, href = "#", onClick, arrowIcon }) => 
 };
 
 const StatusBadge = ({ status }) => {
-  const isActive = status === "Active";
+  const normalized = status?.toUpperCase();
+  let bgClass = "bg-gray-100";
+  let textClass = "text-gray-800";
+
+  if (normalized === "ACTIVE") {
+    bgClass = "bg-green-100";
+    textClass = "text-green-800";
+  } else if (normalized === "INACTIVE") {
+    bgClass = "bg-yellow-100";
+    textClass = "text-yellow-800";
+  } else if (normalized === "RESIGNED") {
+    bgClass = "bg-red-100";
+    textClass = "text-red-800";
+  }
+
   return (
     <span
-      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${
-        isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-      }`}
+      className={`
+        ${bgClass} ${textClass}
+        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
+        rounded-full whitespace-nowrap
+      `}
     >
       {status}
     </span>
   );
 };
 
-// --- Mock Data ---
-const employeeData = [
-  { id: "I-0001", name: "Jane Cooper", department: "Cyber Security", email: "jane@microsoft.com", joiningDate: "26 March 2025", status: "Active" },
-  { id: "I-0002", name: "Doe Laly", department: "Web Design", email: "floyd@yahoo.com", joiningDate: "23 April 2023", status: "Inactive" },
-  { id: "I-0003", name: "John reach", department: "Full Stack Developer", email: "ronald@adobe.com", joiningDate: "03 Sept 2024", status: "Inactive" },
-  { id: "I-0004", name: "Koko Tesla", department: "Mobile Developer", email: "marvin@tesla.com", joiningDate: "05 Oct 2023", status: "Active" },
-  { id: "I-0005", name: "Jack bot", department: "Web Design", email: "jerome@google.com", joiningDate: "23 Nov 2022", status: "Active" },
-  { id: "I-0006", name: "Mic Roza", department: "Full Stack Developer", email: "kathryn@microsoft.com", joiningDate: "12 Jan 2019", status: "Active" },
-  { id: "I-0007", name: "Sarah Connor", department: "Cyber Security", email: "sarah@skynet.com", joiningDate: "15 Feb 2024", status: "Active" },
-  { id: "I-0008", name: "John Doe", department: "Mobile Developer", email: "john@example.com", joiningDate: "01 Mar 2023", status: "Inactive" },
-  { id: "I-0009", name: "Alice Smith", department: "Web Design", email: "alice@company.com", joiningDate: "10 Apr 2022", status: "Active" },
-  { id: "I-0010", name: "Bob Johnson", department: "Full Stack Developer", email: "bob@tech.org", joiningDate: "05 May 2021", status: "Active" },
-  { id: "I-0011", name: "Eva Williams", department: "Cyber Security", email: "eva@security.com", joiningDate: "20 Jun 2020", status: "Inactive" },
-  { id: "I-0012", name: "Mike Brown", department: "Mobile Developer", email: "mike@dev.io", joiningDate: "15 Jul 2019", status: "Active" },
-  { id: "I-0013", name: "Lucy Davis", department: "Web Design", email: "lucy@design.co", joiningDate: "30 Aug 2023", status: "Active" },
-  { id: "I-0014", name: "Peter Wilson", department: "Full Stack Developer", email: "peter@fullstack.dev", joiningDate: "25 Sep 2022", status: "Inactive" },
-  { id: "I-0015", name: "Emma Taylor", department: "Cyber Security", email: "emma@secure.net", joiningDate: "12 Oct 2021", status: "Active" },
-  { id: "I-0016", name: "David Martinez", department: "Mobile Developer", email: "david@mobileapp.com", joiningDate: "05 Nov 2020", status: "Active" },
-  { id: "I-0017", name: "Sophia Anderson", department: "Web Design", email: "sophia@web.design", joiningDate: "20 Dec 2019", status: "Inactive" },
-  { id: "I-0018", name: "James Thomas", department: "Full Stack Developer", email: "james@fullstack.io", joiningDate: "15 Jan 2023", status: "Active" },
-  { id: "I-0019", name: "Olivia Jackson", department: "Cyber Security", email: "olivia@cyber.shield", joiningDate: "10 Feb 2022", status: "Active" },
-  { id: "I-0020", name: "Liam White", department: "Mobile Developer", email: "liam@flutter.dev", joiningDate: "05 Mar 2021", status: "Inactive" },
-  { id: "I-0021", name: "Mia Harris", department: "Web Design", email: "mia@uiux.design", joiningDate: "20 Apr 2020", status: "Active" },
-  { id: "I-0022", name: "Noah Clark", department: "Full Stack Developer", email: "noah@nodejs.dev", joiningDate: "15 May 2019", status: "Active" },
-  { id: "I-0023", name: "Ava Lewis", department: "Cyber Security", email: "ava@secure.tech", joiningDate: "10 Jun 2023", status: "Inactive" },
-  { id: "I-0024", name: "William Walker", department: "Mobile Developer", email: "will@kotlin.dev", joiningDate: "05 Jul 2022", status: "Active" },
-  { id: "I-0025", name: "Isabella Hall", department: "Web Design", email: "bella@webdesign.co", joiningDate: "20 Aug 2021", status: "Active" },
-  { id: "I-0026", name: "Benjamin Young", department: "Full Stack Developer", email: "ben@mern.dev", joiningDate: "15 Sep 2020", status: "Inactive" },
-  { id: "I-0027", name: "Charlotte King", department: "Cyber Security", email: "charlie@hackerproof.com", joiningDate: "10 Oct 2019", status: "Active" },
-  { id: "I-0028", name: "Lucas Scott", department: "Mobile Developer", email: "lucas@reactnative.dev", joiningDate: "05 Nov 2023", status: "Active" },
-  { id: "I-0029", name: "Amelia Green", department: "Web Design", email: "amelia@cssmaster.com", joiningDate: "20 Dec 2022", status: "Inactive" },
-  { id: "I-0030", name: "Henry Adams", department: "Full Stack Developer", email: "henry@python.dev", joiningDate: "15 Jan 2021", status: "Active" }
-];
 
 function EmployeeInfo() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  // const [newEmployees, setNewEmployees] = useState ([])
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const navigate = useNavigate();
 
-  // Filter employees based on search term
-  const filteredEmployees = employeeData.filter((employee) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      employee.name.toLowerCase().includes(searchLower) ||
-      employee.department.toLowerCase().includes(searchLower)
-    );
+
+  useEffect(() => {
+    let accessToken = localStorage.getItem("accessToken");
+    EmpService.getAllEmployee(accessToken, currentPage - 1, itemsPerPage)
+      .then((response) => {
+        console.log("Getting all Employee: ", response.data);
+
+        const employeePromises = response.data._embedded.employees.map((emp) =>
+          EmpService.getEmployeeInfo(accessToken, emp._links.department.href).then((res) => {
+            emp.department = res.data; // Add employee data to the object
+            return emp; // Return the enriched employee object
+          })
+        );
+
+        // Wait for all API calls to complete
+        Promise.all(employeePromises)
+          .then((enrichedEmployees) => {
+            console.log("Final enriched Employees: ", enrichedEmployees);
+            setEmployees(enrichedEmployees); // Update state with all enriched employees
+          })
+          .catch((error) => {
+            console.error("Error enriching Employees: ", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching employees: ", error);
+      });
+  }, [currentPage]);
+
+  const validationSchema = Yup.object({
+    firsName: Yup.string().required("First name is required"),
+    lastName: Yup.string().required("Last name is required"),
+    email: Yup.string().required("Email is required"),
+    phone: Yup.string().required("Phone number is required"),
+    dateOfJoining: Yup.string().required("Date of Joining is required"),
+    status: Yup.string().required("Status is required"),
+    department: Yup.string().required("Department is required"),
   });
 
+  useEffect (() => {
+    const accessToken = localStorage.getItem("accessToken");
+    axios.post('https://eam-api.istad.co/employees', 
+    {
+      "firstName": "Sim",
+      "lastName": "Sol",
+      "email": "mrrsol034@gmail.com",
+      "phone": "017499919",
+      "dateOfJoining": "2024-04-19",
+      "status": "ACTIVE",
+      "department": "/departments/2"
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
+  .then((response) => {
+    console.log("Employee added successfully:", response.data);
+  })
+  .catch((error) => {
+    console.error("Error adding employee:", error.response?.data || error.message);
+  });
+
+  }, []);
+
+  // Filter employees based on search term
+  const filteredEmployees = employees.filter((emp) => {
+    const term = searchTerm.toLowerCase();
+    const fullName = `${emp.firstName || ""} ${emp.lastName || ""}`.toLowerCase();
+    const deptName = (emp.department?.name || "").toLowerCase();
+    return fullName.includes(term) || deptName.includes(term);
+  });
+  
   // Calculate pagination values
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
   const indexOfLastEmployee = currentPage * itemsPerPage;
   const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
   const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
-
+  
   // Reset to first page when search term changes
   useEffect(() => {
     setCurrentPage(1);
@@ -137,19 +195,9 @@ function EmployeeInfo() {
     return pageNumbers;
   };
 
-  const [employees, setEmployees] = useState([]);
 
-  useEffect(() => {
-    let accessToken = localStorage.getItem("accessToken");
-    EmpService.getAllEmployee(accessToken,currentPage-1,6).then(response => {
-      console.log("Getting all employee: ", response.data);
-      setEmployees(response.data._embedded.employees);
-    }
-    )
-    .catch(error => {
-      console.error("Error fetching employees: ", error);
-    })
-  }, [currentPage])
+
+  
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -294,7 +342,99 @@ function EmployeeInfo() {
                     <HiOutlineChevronDown className="w-4 h-4 ml-2" />
                   </button>
                 </div>
+                <button
+  onClick={() => setShowAddModal(true)}
+  className="px-4 py-2 bg-primary-color text-white rounded-md hover:bg-primary-color/90 cursor-pointer"
+>
+  Add
+</button>
+
+{showAddModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-lg mx-4">
+      {/* Modal Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Add New Employee</h3>
+        <button
+          onClick={() => setShowAddModal(false)}
+          className="text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          <HiX className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Modal Body */}
+      <Formik>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">ID</label>
+            <input
+              type="text"
+              placeholder="Enter ID"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              placeholder="Enter Name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Department</label>
+            <input
+              type="text"
+              placeholder="Enter Department"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              placeholder="Enter Email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Status</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Resigned">Resigned</option>
+            </select>
+          </div>
+        </div>
+      </Formik>
+
+      {/* Modal Footer */}
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={() => setShowAddModal(false)}
+          className="px-4 py-2 mr-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            // Add logic to save the employee details
+            setShowAddModal(false);
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+                
               </div>
+              
             </div>
 
             {/* Responsive Table Wrapper */}
@@ -340,13 +480,13 @@ function EmployeeInfo() {
                           {employee.firstName + " " + employee.lastName}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
-                          {employee.department}
+                          {employee.department.name}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs block md:table-cell">
                           {employee.email}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
-                          {employee.joiningDate}
+                          {employee.dateOfJoining}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm block md:table-cell">
                           <StatusBadge status={employee.status} />
@@ -357,6 +497,9 @@ function EmployeeInfo() {
                 </tbody>
               </table>
             </div>
+            
+
+            
 
             {/* Pagination */}
             <div className="flex flex-col md:flex-row justify-between items-center mt-4 md:mt-6 pt-4 border-t border-gray-200">

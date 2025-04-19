@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+
 import SidebarEmp from "../sidebar/SidebarEmp";
 import {
   HiOutlineBell,
-  HiOutlineSearch,
   HiOutlineChevronDown,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
 } from "react-icons/hi";
+import EmpAttendances from '../../services/empAttendance'
 
 // --- StatusBadge Component ---
 // Modified to use colors based on "Approve", "Deny", or "Pending"
@@ -36,31 +37,48 @@ const StatusBadge = ({ status }) => {
 
 // --- Mock Data ---
 // Adjusted to include only date, day, check-in, check-out, and status.
-const attendanceData = [
-  {
-    date: "28/03/2025",
-    day: "Friday",
-    checkIn: "7:30 am",
-    checkOut: "5:30 pm",
-    status: "Approve",
-  },
-  {
-    date: "27/03/2025",
-    day: "Thursday",
-    checkIn: "7:45 am",
-    checkOut: "5:00 pm",
-    status: "Deny",
-  },
-  {
-    date: "26/03/2025",
-    day: "Wednesday",
-    checkIn: "8:00 am",
-    checkOut: "5:40 pm",
-    status: "Pending",
-  },
-];
+// const attendanceData = [
+//   {
+//     date: "28/03/2025",
+//     day: "Friday",
+//     checkIn: "7:30 am",
+//     checkOut: "5:30 pm",
+//     status: "Approve",
+//   },
+//   {
+//     date: "27/03/2025",
+//     day: "Thursday",
+//     checkIn: "7:45 am",
+//     checkOut: "5:00 pm",
+//     status: "Deny",
+//   },
+//   {
+//     date: "26/03/2025",
+//     day: "Wednesday",
+//     checkIn: "8:00 am",
+//     checkOut: "5:40 pm",
+//     status: "Pending",
+//   },
+// ];
+
+
 
 function EmpAttendance() {
+
+  const [attendances, setAttendances] = useState([]); // ✅ Move useState inside the component
+
+useEffect(() => {
+  let accessToken = localStorage.getItem("accessToken");
+  EmpAttendances.getAllAttendances(accessToken, 0, 6)
+    .then((response) => {
+      console.log("Getting all Attendance: ", response.data);
+      setAttendances(response.data._embedded.attendances);
+    })
+    .catch((error) => {
+      console.error("Error fetching attendance: ", error);
+    });
+}, []);
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
@@ -88,16 +106,7 @@ function EmpAttendance() {
               </h2>
               <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
                 {/* Search Input */}
-                <div className="relative w-full sm:w-auto">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <HiOutlineSearch className="w-5 h-5 text-gray-400" />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                
                 {/* Sort Dropdown */}
                 <div className="relative w-full sm:w-auto">
                   <button className="flex items-center justify-between w-full sm:w-auto md:w-40 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -131,22 +140,22 @@ function EmpAttendance() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {attendanceData.map((entry, index) => (
+                  {attendances.map((attendances, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.date}
+                        {attendances.date}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.day}
+                        {attendances.day}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.checkIn}
+                        {attendances.checkInTime}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.checkOut}
+                        {attendances.checkOutTime}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <StatusBadge status={entry.status} />
+                        <StatusBadge status={attendances.status} />
                       </td>
                     </tr>
                   ))}

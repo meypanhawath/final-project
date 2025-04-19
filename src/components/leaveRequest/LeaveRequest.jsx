@@ -42,17 +42,28 @@ const SidebarItem = ({ icon, text, Approve, href = "#", onClick }) => (
 );
 
 const StatusBadge = ({ status }) => {
+  const normalized = status?.toUpperCase();
+  let bgClass = "bg-gray-100";
+  let textClass = "text-gray-800";
+
+  if (normalized === "APPROVED") {
+    bgClass = "bg-green-100";
+    textClass = "text-green-800";
+  } else if (normalized === "PENDING") {
+    bgClass = "bg-yellow-100";
+    textClass = "text-yellow-800";
+  } else if (normalized === "REJECTED") {
+    bgClass = "bg-red-100";
+    textClass = "text-red-800";
+  }
+
   return (
     <span
-      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${
-        status === "Approve"
-          ? "bg-green-100 text-green-800"
-          : status === "Deny"
-          ? "bg-red-100 text-red-800"
-          : status === "Pending"
-          ? "bg-yellow-100 text-yellow-800"
-          : "bg-gray-100 text-gray-800"
-      }`}
+      className={`
+        ${bgClass} ${textClass}
+        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
+        rounded-full whitespace-nowrap
+      `}
     >
       {status}
     </span>
@@ -221,15 +232,34 @@ function LeaveRequest() {
 
   useEffect(() => {
     let accessToken = localStorage.getItem("accessToken");
-    EmpLeave.getAllLeave(accessToken,0,6).then(response => {
-      console.log("Getting all Leave ", response.data);
-      setLeave(response.data._embedded.leaveRequests);
-    }
-    )
-    .catch(error => {
-      console.error("Error fetching Leave: ", error);
-    })
-  }, [])
+    EmpLeave.getAllLeave(accessToken, - 1, 6)
+      .then((response) => {
+        console.log("Getting all Leave: ", response.data);
+  
+        const leavePromises = response.data._embedded.leaveRequests.map((att) =>
+          EmpLeave.getEmployeeLeave(
+            accessToken,
+            att._links.employee.href
+          ).then((res) => {
+            att.employee = res.data; // Add employee data to the attendance object
+            return att; // Return the enriched attendance object
+          })
+        );
+  
+        // Wait for all API calls to complete
+        Promise.all(leavePromises)
+          .then((enrichedAttendances) => {
+            console.log("Final enriched attendances: ", enrichedAttendances);
+            setLeave(enrichedAttendances); // Update state with all enriched attendances
+          })
+          .catch((error) => {
+            console.error("Error enriching attendances: ", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching attendance: ", error);
+      });
+  }, []);
 
   
 
@@ -385,21 +415,22 @@ function LeaveRequest() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       ID
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Name
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Start Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       End Date
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -415,7 +446,7 @@ function LeaveRequest() {
                         {leaveRequests.id}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {leaveRequests.name}
+                        {leaveRequests.employee.firstName + " " + leaveRequests.employee.lastName}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                         {leaveRequests.startDate}
@@ -425,6 +456,9 @@ function LeaveRequest() {
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <StatusBadge status={leaveRequests.status} />
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                        {leaveRequests.reason} 
                       </td>
                     </tr>
                   ))}

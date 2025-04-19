@@ -52,12 +52,28 @@ const StatCard = ({ title, value, className = "" }) => (
 );
 
 const StatusBadge = ({ status }) => {
-  const isActive = status === "Present";
+  const normalized = status?.toUpperCase();
+  let bgClass = "bg-gray-100";
+  let textClass = "text-gray-800";
+
+  if (normalized === "ACTIVE") {
+    bgClass = "bg-green-100";
+    textClass = "text-green-800";
+  } else if (normalized === "INACTIVE") {
+    bgClass = "bg-yellow-100";
+    textClass = "text-yellow-800";
+  } else if (normalized === "RESIGNED") {
+    bgClass = "bg-red-100";
+    textClass = "text-red-800";
+  }
+
   return (
     <span
-      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${
-        isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-      }`}
+      className={`
+        ${bgClass} ${textClass}
+        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
+        rounded-full whitespace-nowrap
+      `}
     >
       {status}
     </span>
@@ -90,36 +106,36 @@ const LogoutModal = ({ onConfirm, onCancel }) => (
 );
 
 // Mock Data
-const attendanceData = [
-  {
-    id: 1,
-    avatar: "https://via.placeholder.com/40/A0AEC0/FFFFFF?text=JC",
-    name: "Jane Cooper",
-    department: "cyber security",
-    status: "Present",
-  },
-  {
-    id: 2,
-    avatar: "https://via.placeholder.com/40/718096/FFFFFF?text=DL",
-    name: "Doe laly",
-    department: "web developer",
-    status: "Absent",
-  },
-  {
-    id: 3,
-    avatar: "https://via.placeholder.com/40/E53E3E/FFFFFF?text=SR",
-    name: "Someone Else",
-    department: "software dev",
-    status: "Absent",
-  },
-  {
-    id: 4,
-    avatar: "https://via.placeholder.com/40/A0AEC0/FFFFFF?text=JC",
-    name: "Jane Cooper",
-    department: "networking",
-    status: "Present",
-  },
-];
+// const attendanceData = [
+//   {
+//     id: 1,
+//     avatar: "https://via.placeholder.com/40/A0AEC0/FFFFFF?text=JC",
+//     name: "Jane Cooper",
+//     department: "cyber security",
+//     status: "Present",
+//   },
+//   {
+//     id: 2,
+//     avatar: "https://via.placeholder.com/40/718096/FFFFFF?text=DL",
+//     name: "Doe laly",
+//     department: "web developer",
+//     status: "Absent",
+//   },
+//   {
+//     id: 3,
+//     avatar: "https://via.placeholder.com/40/E53E3E/FFFFFF?text=SR",
+//     name: "Someone Else",
+//     department: "software dev",
+//     status: "Absent",
+//   },
+//   {
+//     id: 4,
+//     avatar: "https://via.placeholder.com/40/A0AEC0/FFFFFF?text=JC",
+//     name: "Jane Cooper",
+//     department: "networking",
+//     status: "Present",
+//   },
+// ];
 
 function AdminDB() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -142,15 +158,31 @@ function AdminDB() {
 
   useEffect(() => {
     let accessToken = localStorage.getItem("accessToken");
-    EmpService.getAllEmployee(accessToken,0,4).then(response => {
-      console.log("Getting all employee: ", response.data);
-      setEmployees(response.data._embedded.employees);
-    }
-    )
-    .catch(error => {
-      console.error("Error fetching employees: ", error);
-    })
-  }, [])
+    EmpService.getAllEmployee(accessToken, - 1, 4)
+      .then((response) => {
+        console.log("Getting all Employee: ", response.data);
+
+        const employeePromises = response.data._embedded.employees.map((emp) =>
+          EmpService.getEmployeeInfo(accessToken, emp._links.department.href).then((res) => {
+            emp.department = res.data; // Add employee data to the object
+            return emp; // Return the enriched employee object
+          })
+        );
+
+        // Wait for all API calls to complete
+        Promise.all(employeePromises)
+          .then((enrichedEmployees) => {
+            console.log("Final enriched Employees: ", enrichedEmployees);
+            setEmployees(enrichedEmployees); // Update state with all enriched employees
+          })
+          .catch((error) => {
+            console.error("Error enriching Employees: ", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching employees: ", error);
+      });
+  }, []);
 
   return (
     <>
@@ -322,7 +354,7 @@ function AdminDB() {
                               </div>
                             </td>
                             <td className="py-3 md:py-4 px-2 md:px-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                              {employees.department}
+                              {employees.department.name}
                             </td>
                             <td className="py-3 md:py-4 whitespace-nowrap text-sm">
                               <StatusBadge status={employees.status} />

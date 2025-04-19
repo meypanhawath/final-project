@@ -14,7 +14,7 @@ localStorage.setItem("token", token);
       {/* Mobile Sidebar */}
       <div className={`fixed lg:relative z-50 h-full transform ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0 transition-transform duration-300 ease-in-out w-[70%] lg:w-[19%]`}>
+      } lg:translate-x-0 transition-transform duration-300 ease-in-out w-[70%] lg:w-[16.5%]`}>
         <SidebarEmp onClose={() => setIsSidebarOpen(false)} />
       </div>
 

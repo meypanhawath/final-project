@@ -6,7 +6,13 @@ const EmpService = {
             Authorization: `Bearer ${token}`,
           },} ),
 
+  getEmployeeInfo: (token, url) => 
+    api.get(`${url}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
 
-}
+};
 
 export default EmpService

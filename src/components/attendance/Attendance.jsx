@@ -13,7 +13,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
-import EmpAttendance from "../../services/empAttendance";
+import AdminAttendance from "../../services/adminAttendance";
 
 // SidebarItem Component
 const SidebarItem = ({ icon, text, Present, href = "#", onClick }) => (
@@ -42,12 +42,28 @@ const SidebarItem = ({ icon, text, Present, href = "#", onClick }) => (
 
 // StatusBadge Component
 const StatusBadge = ({ status }) => {
-  const isPresent = status === "Present";
+  const normalized = status?.toUpperCase();
+  let bgClass = "bg-gray-100";
+  let textClass = "text-gray-800";
+
+  if (normalized === "PRESENT") {
+    bgClass = "bg-green-100";
+    textClass = "text-green-800";
+  } else if (normalized === "ON_LEAVE") {
+    bgClass = "bg-yellow-100";
+    textClass = "text-yellow-800";
+  } else if (normalized === "ABSENT") {
+    bgClass = "bg-red-100";
+    textClass = "text-red-800";
+  }
+
   return (
     <span
-      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${
-        isPresent ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-      }`}
+      className={`
+        ${bgClass} ${textClass}
+        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
+        rounded-full whitespace-nowrap
+      `}
     >
       {status}
     </span>
@@ -109,13 +125,13 @@ const generateAttendanceData = () => {
 
   const attendanceData = [];
   for (let i = 0; i < 5; i++) {
-    baseEmployees.forEach(emp => {
+    baseEmployees.forEach((emp) => {
       attendanceData.push({
         ...emp,
         date: `${28 - i}/03/2025`,
-        checkIn: `${7 + i}:${30 - (i*5)} am`,
-        checkOut: `${5 + i}:${30 + (i*5)} pm`,
-        status: Math.random() > 0.2 ? "Present" : "Absent"
+        checkIn: `${7 + i}:${30 - i * 5} am`,
+        checkOut: `${5 + i}:${30 + i * 5} pm`,
+        status: Math.random() > 0.2 ? "Present" : "Absent",
       });
     });
   }
@@ -136,7 +152,7 @@ function Attendance() {
   const filteredEmployees = employeeData.filter((employee) => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      employee.name.toLowerCase().includes(searchLower) || 
+      employee.name.toLowerCase().includes(searchLower) ||
       employee.id.toLowerCase().includes(searchLower)
     );
   });
@@ -144,7 +160,10 @@ function Attendance() {
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
   const indexOfLastEmployee = currentPage * itemsPerPage;
   const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
-  const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+  const currentEmployees = filteredEmployees.slice(
+    indexOfFirstEmployee,
+    indexOfLastEmployee
+  );
 
   // Reset to first page when search term changes
   useEffect(() => {
@@ -171,17 +190,67 @@ function Attendance() {
 
   const [attendances, setAttendances] = useState([]);
 
+  // useEffect(() => {
+  //   let accessToken = localStorage.getItem("accessToken");
+  //   AdminAttendance.getAllAttendances(accessToken, currentPage - 1, 6)
+  //     .then((response) => {
+  //       let temp = [];
+
+  //       console.log("Getting all Attendance: ", response.data);
+  //       //setAttendances(response.data._embedded.attendances);
+  //       for (let att of response.data._embedded.attendances) {
+  //         console.log("each att", att);
+  //         AdminAttendance.getEmployeeAttendance(
+  //           accessToken,
+  //           att._links.employee.href
+  //         ).then((res) => {
+  //           console.log("employee attendance", res.data);
+  //           att.employee = res.data;
+  //           temp.push(att);
+  //           console.log("final att", att);
+  //           setAttendances(temp);
+  //         });
+  //       }
+
+        
+
+  //       console.log("Getting all Attendance: ", attendances);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching attendance: ", error);
+  //     });
+  // }, [currentPage]);
+
   useEffect(() => {
     let accessToken = localStorage.getItem("accessToken");
-    EmpAttendance.getAllAttendances(accessToken,currentPage-1,6).then(response => {
-      console.log("Getting all Attendance: ", response.data);
-      setAttendances(response.data._embedded.attendances);
-    }
-    )
-    .catch(error => {
-      console.error("Error fetching attendance: ", error);
-    })
-  }, [currentPage])
+    AdminAttendance.getAllAttendances(accessToken, currentPage - 1, 6)
+      .then((response) => {
+        console.log("Getting all Attendance: ", response.data);
+  
+        const attendancePromises = response.data._embedded.attendances.map((att) =>
+          AdminAttendance.getEmployeeAttendance(
+            accessToken,
+            att._links.employee.href
+          ).then((res) => {
+            att.employee = res.data; // Add employee data to the attendance object
+            return att; // Return the enriched attendance object
+          })
+        );
+  
+        // Wait for all API calls to complete
+        Promise.all(attendancePromises)
+          .then((enrichedAttendances) => {
+            console.log("Final enriched attendances: ", enrichedAttendances);
+            setAttendances(enrichedAttendances); // Update state with all enriched attendances
+          })
+          .catch((error) => {
+            console.error("Error enriching attendances: ", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching attendances: ", error);
+      });
+  }, [currentPage]);
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -193,11 +262,13 @@ function Attendance() {
           aria-hidden="true"
         ></div>
       )}
-      
+
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col ${
+      <div
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0 lg:shadow-md lg:z-auto`}>
+        } lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0 lg:shadow-md lg:z-auto`}
+      >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 md:h-20 border-b flex-shrink-0 px-18">
           <div className="flex items-center">
@@ -337,30 +408,36 @@ function Attendance() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentEmployees.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="px-4 py-6 text-center text-gray-500">
+                      <td
+                        colSpan="6"
+                        className="px-4 py-6 text-center text-gray-500"
+                      >
                         No attendance records found
                       </td>
                     </tr>
                   ) : (
-                    attendances.map((attendances) => (
-                      <tr key={`${attendances.id}-${attendances.date}`} className="hover:bg-gray-50">
+                    attendances.map((attendance) => (
+                      <tr
+                        key={`${attendance.id}-${attendance.date}`}
+                        className="hover:bg-gray-50"
+                      >
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {attendances.id}
+                          {attendance.id}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {attendances.name}
+                          {attendance.employee.firstName + " " + attendance.employee.lastName}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {attendances.date}
+                          {attendance.date}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {attendances.checkInTime}
+                          {attendance.checkInTime}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {attendances.checkOutTime}
+                          {attendance.checkOutTime}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm">
-                          <StatusBadge status={attendances.status} />
+                          <StatusBadge status={attendance.status} />
                         </td>
                       </tr>
                     ))
