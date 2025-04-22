@@ -35,7 +35,7 @@ export default function EmpDB({ onToggleSidebar }) {
 
   const handleScan = () => {
     // Simulate a successful scan
-    const currentType = modalType;
+    // const currentType = modalType;
     setModalType(null);
     setTimeout(() => {
       setShowSuccess(true);
