@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Image from "../../assets/logo-dark-v2.png";
-import UserService from "../../services/UserService"
+import UserService from "../../services/userService"
 
 // Custom field component with animation for valid input
 const AnimatedField = ({ label, ...props }) => {
