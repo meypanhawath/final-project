@@ -11,7 +11,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
-import EmpService from "../../services/EmpService"
+import EmpService from "../../services/empService"
 
 // Reusable Components
 const SidebarItem = (
