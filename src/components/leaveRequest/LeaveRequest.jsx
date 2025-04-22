@@ -14,7 +14,7 @@ import {
   HiX,
 } from "react-icons/hi";
 import Icon from "../../assets/close.png";
-import EmpLeave from "../../services/EmpLeave"
+import EmpLeave from "../../services/empLeave"
 
 // --- SidebarItem Component ---
 const SidebarItem = ({ icon, text, Approve, href = "#", onClick }) => (
