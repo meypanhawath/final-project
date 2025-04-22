@@ -13,7 +13,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
-import AdminAttendance from "../../services/adminAttendances";
+import AdminAttendance from "../../services/adminAttendance";
 
 // SidebarItem Component
 const SidebarItem = ({ icon, text, Present, href = "#", onClick }) => (
