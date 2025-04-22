@@ -1,66 +1,89 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+
 import SidebarEmp from "../sidebar/SidebarEmp";
 import {
   HiOutlineBell,
-  HiOutlineSearch,
   HiOutlineChevronDown,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
 } from "react-icons/hi";
+import EmpAttendances from '../../services/empAttendance'
 
 // --- StatusBadge Component ---
 // Modified to use colors based on "Approve", "Deny", or "Pending"
 const StatusBadge = ({ status }) => {
-  let bgColor = "";
-  let textColor = "";
+  const normalized = status?.toUpperCase();
+  let bgClass = "bg-gray-100";
+  let textClass = "text-gray-800";
 
-  if (status === "Approve") {
-    bgColor = "bg-green-100";
-    textColor = "text-green-800";
-  } else if (status === "Deny") {
-    bgColor = "bg-red-100";
-    textColor = "text-red-800";
-  } else if (status === "Pending") {
-    bgColor = "bg-yellow-100";
-    textColor = "text-yellow-800";
+  if (normalized === "PRESENT") {
+    bgClass = "bg-green-100";
+    textClass = "text-green-800";
+  } else if (normalized === "ON_LEAVE") {
+    bgClass = "bg-yellow-100";
+    textClass = "text-yellow-800";
+  } else if (normalized === "ABSENT") {
+    bgClass = "bg-red-100";
+    textClass = "text-red-800";
   }
 
   return (
     <span
-      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${bgColor} ${textColor}`}
+      className={`
+        ${bgClass} ${textClass}
+        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
+        rounded-full whitespace-nowrap
+      `}
     >
       {status}
     </span>
   );
-};
+};  
 
 // --- Mock Data ---
 // Adjusted to include only date, day, check-in, check-out, and status.
-const attendanceData = [
-  {
-    date: "28/03/2025",
-    day: "Friday",
-    checkIn: "7:30 am",
-    checkOut: "5:30 pm",
-    status: "Approve",
-  },
-  {
-    date: "27/03/2025",
-    day: "Thursday",
-    checkIn: "7:45 am",
-    checkOut: "5:00 pm",
-    status: "Deny",
-  },
-  {
-    date: "26/03/2025",
-    day: "Wednesday",
-    checkIn: "8:00 am",
-    checkOut: "5:40 pm",
-    status: "Pending",
-  },
-];
+// const attendanceData = [
+//   {
+//     date: "28/03/2025",
+//     day: "Friday",
+//     checkIn: "7:30 am",
+//     checkOut: "5:30 pm",
+//     status: "Approve",
+//   },
+//   {
+//     date: "27/03/2025",
+//     day: "Thursday",
+//     checkIn: "7:45 am",
+//     checkOut: "5:00 pm",
+//     status: "Deny",
+//   },
+//   {
+//     date: "26/03/2025",
+//     day: "Wednesday",
+//     checkIn: "8:00 am",
+//     checkOut: "5:40 pm",
+//     status: "Pending",
+//   },
+// ];
+
+
 
 function EmpAttendance() {
+
+  const [attendances, setAttendances] = useState([]); // ✅ Move useState inside the component
+
+useEffect(() => {
+  let accessToken = localStorage.getItem("accessToken");
+  EmpAttendances.getAllAttendances(accessToken, 0, 6)
+    .then((response) => {
+      console.log("Getting all Attendance: ", response.data);
+      setAttendances(response.data._embedded.attendances);
+    })
+    .catch((error) => {
+      console.error("Error fetching attendance: ", error);
+    });
+}, []);
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
@@ -88,16 +111,7 @@ function EmpAttendance() {
               </h2>
               <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
                 {/* Search Input */}
-                <div className="relative w-full sm:w-auto">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <HiOutlineSearch className="w-5 h-5 text-gray-400" />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                
                 {/* Sort Dropdown */}
                 <div className="relative w-full sm:w-auto">
                   <button className="flex items-center justify-between w-full sm:w-auto md:w-40 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -116,37 +130,33 @@ function EmpAttendance() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Day
-                    </th>
+                  
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Check-in
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Check-out
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {attendanceData.map((entry, index) => (
+                  {attendances.map((attendances, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.date}
+                        {attendances.date}
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {attendances.checkInTime}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.day}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.checkIn}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {entry.checkOut}
+                        {attendances.checkOutTime}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <StatusBadge status={entry.status} />
+                        <StatusBadge status={attendances.status} />
                       </td>
                     </tr>
                   ))}

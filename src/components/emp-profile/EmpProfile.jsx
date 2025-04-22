@@ -7,10 +7,10 @@ const EmpProfile = () => {
   const [activeTab, setActiveTab] = useState('personal');
   const [isEditing, setIsEditing] = useState(false);
   const [personalInfo, setPersonalInfo] = useState({
-    firstName: 'Luca',
-    lastName: 'Cola',
-    email: 'luca03884@gmail.com',
-    phone: '039 338 8452',
+    firstName: 'Checkify',
+    lastName: 'Checkify',
+    email: 'Checkify2112@gmail.com',
+    phone: '012 345 678',
     country: 'Cambodia',
     city: 'Phnom Penh',
     gender: 'Male',

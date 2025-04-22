@@ -44,7 +44,7 @@ const SidebarEmp = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-2 md:px-4 py-4 space-y-2 overflow-y-auto">
         <SidebarItem
           href="/empdashboard"
           icon={HiOutlineViewGrid}

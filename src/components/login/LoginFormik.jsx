@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Image from "../../assets/logo-dark-v2.png";
+import UserService from "../../services/UserService"
 
 // Custom field component with animation for valid input
 const AnimatedField = ({ label, ...props }) => {
@@ -23,7 +24,7 @@ const AnimatedField = ({ label, ...props }) => {
       <Field
         {...field}
         {...props}
-        className={`p-2 md:p-4 rounded-lg outline-none focus:ring-2 focus:ring-primary-color transition text-base md:text-lg ${inputClass}`}
+        className={`p-2 md:p-4 rounded-lg outline-none focus:ring-2 focus:ring-primary-color ring-1 ring-black/20 transition text-base md:text-lg ${inputClass}`}
       />
       {meta.touched && meta.error && (
         <div className="text-red-500 text-sm">{meta.error}</div>
@@ -64,7 +65,7 @@ const LoadingSpinner = () => (
 const LoginFormik = () => {
   const navigate = useNavigate();
   const [showInvalidModal, setShowInvalidModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   useEffect(() => {
     AOS.init({
@@ -85,10 +86,10 @@ const LoginFormik = () => {
     }
   }, [navigate]);
 
-  const credentials = {
-    admin: { username: "admin", password: "password123" },
-    employee: { username: "employee", password: "password123" },
-  };
+  // const credentials = {
+  //   admin: { username: "admin", password: "password123" },
+  //   employee: { username: "employee", password: "password123" },
+  // };
 
   const validationSchema = Yup.object({
     username: Yup.string().required("Username is required"),
@@ -97,29 +98,43 @@ const LoginFormik = () => {
 
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
     const { username, password } = values;
-    let token = "";
+    console.log(username, password);
+    UserService.login({ username, password })
+    .then(response => {
+      console.log("Login successful: ", response);
+      const accessToken = response.data.accessToken; // Assuming the token is in response.data.token
+      const refreshToken = response.data.refreshToken;
+      localStorage.setItem("accessToken", accessToken) // Assuming the token is in response.data.token
+      localStorage.setItem("refreshToken", refreshToken)
+      // 1. Fecth user info (user info, role) from api
+      // 2. Navigate to dashboard based on role
+      navigate("/admindashboard") // Assuming the token is in response.data.token
+    }).catch(error => {
+      console.log("Login Error: ",error);
+    })
+    // let token = "";
 
-    if (
-      username === credentials.admin.username &&
-      password === credentials.admin.password
-    ) {
-      token = "admin-token-abc123";
-      localStorage.setItem("userRole", "admin");
-      localStorage.setItem("authToken", token);
-      setIsLoading(true);
-      setTimeout(() => navigate("/admindashboard"), 1500);
-    } else if (
-      username === credentials.employee.username &&
-      password === credentials.employee.password
-    ) {
-      token = "employee-token-def456";
-      localStorage.setItem("userRole", "employee");
-      localStorage.setItem("authToken", token);
-      setIsLoading(true);
-      setTimeout(() => navigate("/empDashboard"), 1500);
-    } else {
-      setShowInvalidModal(true);
-    }
+    // if (
+    //   username === credentials.admin.username &&
+    //   password === credentials.admin.password
+    // ) {
+    //   token = "admin-token-abc123";
+    //   localStorage.setItem("userRole", "admin");
+    //   localStorage.setItem("authToken", token);
+    //   setIsLoading(true);
+    //   setTimeout(() => navigate("/admindashboard"), 1500);
+    // } else if (
+    //   username === credentials.employee.username &&
+    //   password === credentials.employee.password
+    // ) {
+    //   token = "employee-token-def456";
+    //   localStorage.setItem("userRole", "employee");
+    //   localStorage.setItem("authToken", token);
+    //   setIsLoading(true);
+    //   setTimeout(() => navigate("/empDashboard"), 1500);
+    // } else {
+    //   setShowInvalidModal(true);
+    // }
 
     setSubmitting(false);
     resetForm();
