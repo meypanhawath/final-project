@@ -24,7 +24,7 @@ const AnimatedField = ({ label, ...props }) => {
       <Field
         {...field}
         {...props}
-        className={`p-2 md:p-4 rounded-lg outline-none focus:ring-2 focus:ring-primary-color transition text-base md:text-lg ${inputClass}`}
+        className={`p-2 md:p-4 rounded-lg outline-none focus:ring-2 focus:ring-primary-color ring-1 ring-black/20 transition text-base md:text-lg ${inputClass}`}
       />
       {meta.touched && meta.error && (
         <div className="text-red-500 text-sm">{meta.error}</div>

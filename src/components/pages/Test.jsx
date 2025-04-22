@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
-useEffect
+
 const Test = () => {
   return (
     <div>Test</div>

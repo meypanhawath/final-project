@@ -109,7 +109,7 @@ const Footer = () => {
         </div>
 
         {/* Copyright Section */}
-        <div className="border-t border-blue-900 mt-4 pt-2 text-center text-xs">
+        <div className=" border-t border-blue-900 mt-4 pt-8 text-center text-xs">
           <p>©2025 Checkify™. All Rights Reserved</p>
         </div>
       </div>

@@ -370,47 +370,37 @@ function Attendance() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                {/* Sort Dropdown */}
-                <div className="relative w-full sm:w-auto">
-                  <button className="flex items-center justify-between w-full sm:w-auto md:w-40 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span>Sort by :</span>{" "}
-                    <HiOutlineChevronDown className="w-4 h-4 ml-2" />
-                  </button>
-                </div>
+                
               </div>
             </div>
 
             {/* Table Wrapper */}
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <table className="w-full block md:table divide-y divide-gray-200">
+                <thead className="block md:table-header-group bg-gray-50">
+                  <tr className="border-b border-gray-200 block md:table-row">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Name
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider inline-flex items-center block md:table-cell">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Checkin
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap block md:table-cell">
                       Checkout
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Status
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="block md:table-row-group">
                   {currentEmployees.length === 0 ? (
-                    <tr>
+                    <tr className="block md:table-row">
                       <td
-                        colSpan="6"
-                        className="px-4 py-6 text-center text-gray-500"
+                        colSpan="6" className="px-4 py-6 text-center text-gray-500"
                       >
                         No attendance records found
                       </td>
@@ -418,25 +408,21 @@ function Attendance() {
                   ) : (
                     attendances.map((attendance) => (
                       <tr
-                        key={`${attendance.id}-${attendance.date}`}
                         className="hover:bg-gray-50"
                       >
-                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {attendance.id}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                           {attendance.employee.firstName + " " + attendance.employee.lastName}
                         </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                           {attendance.date}
                         </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs block md:table-cell">
                           {attendance.checkInTime}
                         </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                           {attendance.checkOutTime}
                         </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm block md:table-cell">
                           <StatusBadge status={attendance.status} />
                         </td>
                       </tr>

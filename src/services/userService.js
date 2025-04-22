@@ -2,7 +2,7 @@ import api from '../api';
 
 const UserService = {
   // Register new user
-  register: (userData) => api.post('/users/register', userData),
+  register: (userData) => api.post('api/v1/auth/register', userData),
 
   // Login user
   login: (credentials) => api.post('api/v1/auth/login', credentials),

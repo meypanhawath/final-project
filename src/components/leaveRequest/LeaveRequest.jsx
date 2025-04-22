@@ -401,39 +401,36 @@ function LeaveRequest() {
                     className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                <div className="relative w-full sm:w-auto">
-                  <button className="flex items-center justify-between w-full sm:w-auto md:w-40 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span>Sort by :</span>
-                    <HiOutlineChevronDown className="w-4 h-4 ml-2" />
-                  </button>
-                </div>
+                
               </div>
             </div>
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <table className="w-full block md:table divide-y divide-gray-200">
+                <thead className="block md:table-header-group bg-gray-50">
+                  <tr className="border-b border-gray-200 block md:table-row">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Name
                     </th>
-                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Start Date
                     </th>
-                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap block md:table-cell">
                       End Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                    <th className="w-2 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">Reason</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="block md:table-row-group">
+                    {/* <tr className="block md:table-row">
+                      <td colSpan="6" className="px-4 py-6 text-center text-gray-500">
+                        No employees found
+                      </td>
+                    </tr> */}
                   {leaveRequests.map((leaveRequests) => (
                     <tr
                       key={leaveRequests.id}
@@ -442,22 +439,19 @@ function LeaveRequest() {
                         leaveRequests.status === "Pending" ? "cursor-pointer" : "cursor-default"
                       }`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {leaveRequests.id}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                         {leaveRequests.employee.firstName + " " + leaveRequests.employee.lastName}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                         {leaveRequests.startDate}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs block md:table-cell">
                         {leaveRequests.endDate}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm block md:table-cell">
                         <StatusBadge status={leaveRequests.status} />
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm block md:table-cell">
                         {leaveRequests.reason} 
                       </td>
                     </tr>

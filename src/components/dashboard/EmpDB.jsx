@@ -96,13 +96,12 @@ export default function EmpDB({ onToggleSidebar }) {
             <div className="w-full h-auto sm:h-[35%] md:h-[40%] lg:h-[40%]">
               <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start ml-0 sm:ml-4 md:ml-5 lg:ml-6 mt-1 h-full">                    
                 <span className="text-xl sm:text-2xl mr-0 sm:mr-5">
-                  <img src={Sun} className="w-[20px] sm:w-[30px] md:w-[35px] lg:w-[40px] xl:w-[60px] h-[20px] sm:h-[30px] md:h-[35px] lg:h-[40px] xl:h-[60px]" alt="Sun Icon" />
-                </span>
+                <img src={Sun} className="w-[60px] sm:w-[60px] md:w-[60px] lg:w-[40px] xl:w-[60px] h-[60px] sm:h-[60px] md:h-[60px] lg:h-[40px] xl:h-[60px]" alt="Sun Icon" />                </span>
                 <div className="flex flex-col items-center sm:items-start">
                   <h2 className="text-xl sm:text-xl md:text-2xl lg:text-[20px] xl:text-[20px] font-bold text-gray-600">
                     {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </h2>
-                  <p className="text-gray-600 mt-1 text-[10px] sm:text-[12px] md:text-[12px] lg:text-[14px]">
+                  <p className="text-gray-600 mt-1 text-[12px] sm:text-[12px] md:text-[14px] lg:text-[14px]">
                     Realtime Insight
                   </p>
                 </div>
@@ -113,24 +112,25 @@ export default function EmpDB({ onToggleSidebar }) {
               <p className="mt-1">{formattedDate}</p>
             </div>
             <Link to="/attendance">
-            <div className="w-full h-auto sm:h-[35%] md:h-[34%] lg:h-[30%] flex flex-col items-center justify-center">
-              <button className="mt-4 bg-[#043873] text-white px-3 sm:px-4 py-2 sm:py-3 md:py-3 lg:py-3 xl:py-2 mb-6 rounded-xl h-auto sm:h-[45px] md:h-[48px] lg:h-[50px] xl:h-[45px] w-[85%] sm:w-[80%] md:w-[78%] lg:w-[75%] xl:w-[70%] text-[14px] sm:text-[16px] md:text-[16px] lg:text-[14px] xl:text-[14px] font-bold hover:bg-[#043873] transition duration-300 ease-in-out cursor-pointer">
+            <div className="w-full h-auto sm:h-[35%] md:h-[34%] lg:h-[50%] flex flex-col items-center justify-center">
+              <button className="flex item-center justify-center mt-4 sm:mt-4 md:mt-10 mb-6 sm:mb-2 md:mb-2 bg-[#043873] text-white px-3 sm:px-4 py-2 sm:py-3 md:py-3 lg:py-3 xl:py-4 rounded-xl  w-[85%] sm:w-[80%] md:w-[78%] lg:w-[75%] xl:w-[70%] text-[14px] sm:text-[16px] md:text-[16px] lg:text-[14px] xl:text-[16px] font-bold hover:bg-[#043873] transition duration-300 ease-in-out">
                 View Attendance
               </button>
             </div>
+          
             </Link>
           </div>
 
           {/* Second Box */}
           <div className="bg-[#043873] text-white col-span-1 sm:col-span-2 md:col-span-4 row-span-2 rounded-[10px] h-[150px] sm:h-[180px] md:h-[180px] xl:h-[190px] flex items-center justify-center">
-            <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-3 md:gap-4 xl:gap-8 w-full h-full text-center">
+            <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 sm:gap-3 md:gap-4 xl:gap-8 w-full h-full text-center">
               <div className="flex flex-col items-center justify-center">
                 <h2 className="text-[16px] sm:text-[20px] md:text-[18px] lg:text-[18px] xl:text-[18px] font-bold mb-1 sm:mb-2 md:mb-3 xl:mb-1">This Day</h2>
                 <p className="text-[30px] sm:text-[40px] md:text-[50px] lg:text-[50px] xl:text-[50px] font-bold">17</p>
                 <p className="mt-1 sm:mt-1 md:mt-2 xl:mt-3 text-[14px] sm:text-[16px] md:text-[16px] lg:text-[16px] xl:text-[16px]">Present</p>
               </div>
               <div className="flex flex-col items-center justify-center">
-                <h2 className="text-[16px] sm:text-[20px] md:text-[18px] lg:text-[18px] xl:text-[18px] font-bold mb-1 sm:mb-2 md:mb-3 xl:mb-1">This Month</h2>
+                <h2 className="text-[15px] sm:text-[20px] md:text-[18px] lg:text-[18px] xl:text-[18px] font-bold mb-1 sm:mb-2 md:mb-3 xl:mb-1">This Month</h2>
                 <p className="text-[30px] sm:text-[40px] md:text-[50px] lg:text-[50px] xl:text-[50px] font-bold">04</p>
                 <p className="mt-1 sm:mt-1 md:mt-2 xl:mt-3 text-[14px] sm:text-[16px] md:text-[16px] lg:text-[16px] xl:text-[16px]">Late</p>
               </div>
@@ -290,7 +290,7 @@ export default function EmpDB({ onToggleSidebar }) {
 
       {/* QR Code Modal for Check In / Check Out */}
       {(modalType === 'checkin' || modalType === 'checkout') && (
-  <Dialog open={true} onClose={() => setModalType(null)} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+  <Dialog open={true} onClose={() => setModalType(null)} className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.3)] bg-opacity-40">
     <Dialog.Panel className="bg-white p-6 rounded-xl shadow-xl flex flex-col items-center">
       <h2 className="text-lg font-bold mb-4 capitalize">{modalType} QR Code</h2>
       <div className="p-4 bg-white">
@@ -371,7 +371,7 @@ export default function EmpDB({ onToggleSidebar }) {
       {/* Success Alert */}
       {showSuccess && (
         <div className="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg z-50">
-          {modalType === 'checkin' ? 'Check In' : 'Check Out'} Successfully
+          {modalType === 'checkin' ? 'Check In' : 'Check In'} Successfully
         </div>
       )}
     </>

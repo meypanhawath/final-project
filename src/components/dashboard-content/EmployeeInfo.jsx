@@ -19,9 +19,6 @@ import EmpService from "../../services/empService";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
-
-
-
 // --- Reusable Components ---
 const SidebarItem = ({ icon, text, active, href = "#", onClick, arrowIcon }) => {
   const ArrowIcon = arrowIcon || HiOutlineChevronDown;
@@ -68,29 +65,22 @@ const StatusBadge = ({ status }) => {
 
   return (
     <span
-      className={`
-        ${bgClass} ${textClass}
-        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
-        rounded-full whitespace-nowrap
-      `}
+      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${bgClass} ${textClass}`}
     >
       {status}
     </span>
   );
 };
 
-
 function EmployeeInfo() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [employees, setEmployees] = useState([]);
-  // const [newEmployees, setNewEmployees] = useState ([])
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const navigate = useNavigate();
-
 
   useEffect(() => {
     let accessToken = localStorage.getItem("accessToken");
@@ -121,58 +111,27 @@ function EmployeeInfo() {
   }, [currentPage]);
 
   const validationSchema = Yup.object({
-    firsName: Yup.string().required("First name is required"),
+    firstName: Yup.string().required("First name is required"),
     lastName: Yup.string().required("Last name is required"),
-    email: Yup.string().required("Email is required"),
-    phone: Yup.string().required("Phone number is required"),
+    email: Yup.string().email("Invalid email address").required("Email is required"),
+    phone: Yup.string().matches(/^\d+$/, "Phone number must be numeric").required("Phone number is required"),
     dateOfJoining: Yup.string().required("Date of Joining is required"),
-    status: Yup.string().required("Status is required"),
+    status: Yup.string().required(["ACTIVE", "INACTIVE", "RESIGNED"]).required("Status is required"),
     department: Yup.string().required("Department is required"),
   });
 
-  useEffect (() => {
-    const accessToken = localStorage.getItem("accessToken");
-    axios.post('https://eam-api.istad.co/employees', 
-    {
-      "firstName": "Sim",
-      "lastName": "Sol",
-      "email": "mrrsol034@gmail.com",
-      "phone": "017499919",
-      "dateOfJoining": "2024-04-19",
-      "status": "ACTIVE",
-      "department": "/departments/2"
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  )
-  .then((response) => {
-    console.log("Employee added successfully:", response.data);
-  })
-  .catch((error) => {
-    console.error("Error adding employee:", error.response?.data || error.message);
-  });
-
-  }, []);
-
-  // Filter employees based on search term
   const filteredEmployees = employees.filter((emp) => {
     const term = searchTerm.toLowerCase();
-    const fullName = `${emp.firstName || ""} ${emp.lastName || ""}`.toLowerCase();
+    const fullName = `${emp.firstName} || ${emp.lastName}`.toLowerCase();
     const deptName = (emp.department?.name || "").toLowerCase();
     return fullName.includes(term) || deptName.includes(term);
   });
   
-  // Calculate pagination values
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
   const indexOfLastEmployee = currentPage * itemsPerPage;
   const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
   const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
-  
-  // Reset to first page when search term changes
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -186,7 +145,6 @@ function EmployeeInfo() {
     navigate("/");
   };
 
-  // Generate page numbers
   const getPageNumbers = () => {
     const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
@@ -195,13 +153,8 @@ function EmployeeInfo() {
     return pageNumbers;
   };
 
-
-
-  
-
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Overlay for Mobile Sidebar */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-[rgba(0,0,0,0.3)] z-30 lg:hidden"
@@ -210,20 +163,14 @@ function EmployeeInfo() {
         ></div>
       )}
 
-      {/* Sidebar */}
       <div
-        className={`
-          fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0 lg:shadow-md lg:z-auto
-        `}
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0 lg:shadow-md lg:z-auto`}
       >
-        {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 md:h-20 border-b flex-shrink-0 px-18">
           <div className="flex items-center">
-            <span className="text-lg md:text-xl font-semibold text-gray-800">
-              Checkify
-            </span>
+            <span className="text-lg md:text-xl font-semibold text-gray-800">Checkify</span>
           </div>
           <button
             onClick={closeSidebar}
@@ -234,14 +181,9 @@ function EmployeeInfo() {
           </button>
         </div>
 
-        {/* Sidebar Navigation */}
         <nav className="flex-1 px-2 md:px-4 py-4 space-y-2 overflow-y-auto">
           <Link to="/adminDashboard">
-            <SidebarItem
-              icon={HiOutlineViewGrid}
-              text="Dashboard"
-              onClick={closeSidebar}
-            />
+            <SidebarItem icon={HiOutlineViewGrid} text="Dashboard" onClick={closeSidebar} />
           </Link>
 
           <SidebarItem
@@ -253,23 +195,14 @@ function EmployeeInfo() {
           />
 
           <Link to="/empAttendance">
-            <SidebarItem
-              icon={HiOutlineCalendar}
-              text="Attendance"
-              onClick={closeSidebar}
-            />
+            <SidebarItem icon={HiOutlineCalendar} text="Attendance" onClick={closeSidebar} />
           </Link>
 
           <Link to="/empLeave">
-            <SidebarItem
-              icon={HiOutlineDocumentText}
-              text="Leave request"
-              onClick={closeSidebar}
-            />
+            <SidebarItem icon={HiOutlineDocumentText} text="Leave request" onClick={closeSidebar} />
           </Link>
         </nav>
 
-        {/* Sidebar Footer */}
         <div className="px-2 md:px-4 py-4 border-t flex-shrink-0">
           <button
             onClick={() => setShowLogoutConfirm(true)}
@@ -281,9 +214,7 @@ function EmployeeInfo() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Bar */}
         <header className="flex items-center justify-between p-4 md:p-6 bg-white">
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -313,16 +244,11 @@ function EmployeeInfo() {
           </button>
         </header>
 
-        {/* Scrollable Content Area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6">
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-            {/* Top Bar: Title, Search, Sort */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-4 md:mb-6 space-y-3 sm:space-y-0 sm:space-x-4">
-              <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-                All Employee
-              </h2>
-              <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
-                {/* Search Input */}
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">All Employee</h2>
+              <div className="flex flex-row sm:flex-row items-center w-full sm:w-auto  sm:space-y-0 sm:space-x-4 gap-3">
                 <div className="relative w-full sm:w-auto">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <HiOutlineSearch className="w-5 h-5 text-gray-400" />
@@ -330,132 +256,265 @@ function EmployeeInfo() {
                   <input
                     type="text"
                     placeholder="name or department"
-                    className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full sm:w-48 md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-color focus:border-transparent"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                {/* Sort Dropdown */}
-                <div className="relative w-full sm:w-auto">
-                  <button className="flex items-center justify-between w-full sm:w-auto md:w-40 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span>Sort by :</span>{" "}
-                    <HiOutlineChevronDown className="w-4 h-4 ml-2" />
-                  </button>
-                </div>
-                <button
-  onClick={() => setShowAddModal(true)}
-  className="px-4 py-2 bg-primary-color text-white rounded-md hover:bg-primary-color/90 cursor-pointer"
->
-  Add
-</button>
-
-{showAddModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-lg mx-4">
-      {/* Modal Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Add New Employee</h3>
-        <button
-          onClick={() => setShowAddModal(false)}
-          className="text-gray-500 hover:text-gray-700 focus:outline-none"
-        >
-          <HiX className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Modal Body */}
-      <Formik>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">ID</label>
-            <input
-              type="text"
-              placeholder="Enter ID"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
-            <input
-              type="text"
-              placeholder="Enter Name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Department</label>
-            <input
-              type="text"
-              placeholder="Enter Department"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              placeholder="Enter Email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="Resigned">Resigned</option>
-            </select>
-          </div>
-        </div>
-      </Formik>
-
-      {/* Modal Footer */}
-      <div className="flex justify-end mt-6">
-        <button
-          onClick={() => setShowAddModal(false)}
-          className="px-4 py-2 mr-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            // Add logic to save the employee details
-            setShowAddModal(false);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Add
-        </button>
-      </div>
-    </div>
-  </div>
-)}
                 
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="px-4 py-2 bg-primary-color text-white rounded-md hover:bg-primary-color/90 cursor-pointer"
+                >
+                  Add
+                </button>
               </div>
-              
             </div>
+
+            {showAddModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-lg mx-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Add New Employee</h3>
+                    <button
+                      onClick={() => setShowAddModal(false)}
+                      className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                      <HiX className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <Formik
+                    initialValues={{
+                      firstName: "",
+                      lastName: "",
+                      email: "",
+                      phone: "",
+                      dateOfJoining: "",
+                      status: "Active",
+                      department: "",
+                    }}
+                    validationSchema={validationSchema}
+                    onSubmit={(values, { setSubmitting, resetForm }) => {
+                      const accessToken = localStorage.getItem("accessToken");
+                      if (!accessToken) {
+                        alert("Access token is missing. Please log in.");
+                        setSubmitting(false);
+                        return;
+                      }
+
+                      axios.post("https://eam-api.istad.co/employees",
+                          {
+                            firstName: values.firstName,
+                            lastName: values.lastName,
+                            email: values.email,
+                            phone: values.phone,
+                            dateOfJoining: values.dateOfJoining,
+                            status: values.status.toUpperCase(),
+                            department: `/departments/${values.department}`,
+                          },
+                          {
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${accessToken}`,
+                            },
+                          }
+                        )
+                        .then((response) => {
+                          console.log("Employee added successfully:", response.data);
+                          setEmployees((prevEmployees) => [...prevEmployees, response.data]);
+                          setShowAddModal(false);
+                          resetForm();
+                        })
+                        .catch((error) => {
+                          console.error(
+                            "Error adding employee:",
+                            error.response?.data || error.message
+                          );
+                          alert("Failed to add employee. Please check the input data.");
+                        })
+                        .finally(() => {
+                          setSubmitting(false);
+                        });
+                    }}
+                  >
+                    {({ isSubmitting, errors, touched }) => (
+                      <Form>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              First Name
+                            </label>
+                            <Field
+                              name="firstName"
+                              type="text"
+                              placeholder="Enter First Name"
+                              className={`w-full px-3 py-2 border ${
+                                errors.firstName && touched.firstName
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            />
+                            {errors.firstName && touched.firstName && (
+                              <p className="text-red-500 text-sm">{errors.firstName}</p>
+                            )}
+                          </div>
+                         
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Last Name
+                            </label>
+                            <Field
+                              name="lastName"
+                              type="text"
+                              placeholder="Enter Last Name"
+                              className={`w-full px-3 py-2 border ${
+                                errors.lastName && touched.lastName
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            />
+                            {errors.lastName && touched.lastName && (
+                              <p className="text-red-500 text-sm">{errors.lastName}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Email
+                            </label>
+                            <Field
+                              name="email"
+                              type="email"
+                              placeholder="Enter Email"
+                              className={`w-full px-3 py-2 border ${
+                                errors.email && touched.email
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            />
+                            {errors.email && touched.email && (
+                              <p className="text-red-500 text-sm">{errors.email}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Phone Number
+                            </label>
+                            <Field
+                              name="phone"
+                              type="text"
+                              placeholder="Enter Phone Number"
+                              className={`w-full px-3 py-2 border ${
+                                errors.phone && touched.phone
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            />
+                            {errors.phone && touched.phone && (
+                              <p className="text-red-500 text-sm">{errors.phone}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Date of Joining
+                            </label>
+                            <Field
+                              name="dateOfJoining"
+                              type="date"
+                              placeholder="Enter Date Of joining"
+                              className={`w-full px-3 py-2 border ${
+                                errors.dateOfJoining && touched.dateOfJoining
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            />
+                            {errors.dateOfJoining && touched.dateOfJoining && (
+                              <p className="text-red-500 text-sm">{errors.dateOfJoining}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Status
+                            </label>
+                            <Field
+                                name="department"
+                                as="select"
+                                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="INACTIVE">INACTIVE</option>
+                                <option value="RESIGNED">RESIGNED</option>
+                              </Field>
+                            {errors.status && touched.status && (
+                              <p className="text-red-500 text-sm">{errors.status}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Department
+                            </label>
+                            <Field
+                                name="department"
+                                as="select"
+                                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="1">HR</option>
+                                <option value="2">IT</option>
+                                <option value="3">Finance</option>
+                              </Field>
+                            {errors.department && touched.department && (
+                              <p className="text-red-500 text-sm">{errors.department}</p>
+                            )}
+                          </div>
+
+   
+                          {/* Add other fields here */}
+                          </div>
+                        <div className="flex justify-end mt-6">
+                          <button
+                            type="button"
+                            onClick={() => setShowAddModal(false)}
+                            className="px-4 py-2 mr-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                          >
+                            {isSubmitting ? "Adding..." : "Add"}
+                          </button>
+                        </div>
+                        
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+              </div>
+            )}
 
             {/* Responsive Table Wrapper */}
             <div className="overflow-x-auto">
               <table className="w-full block md:table divide-y divide-gray-200">
                 <thead className="block md:table-header-group bg-gray-50">
                   <tr className="border-b border-gray-200 block md:table-row">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
-                      ID
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Name
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider inline-flex items-center block md:table-cell">
+                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider items-center block md:table-cell">
                       Department
                       <HiOutlineChevronDown className="w-4 h-4 ml-1 inline-block md:hidden" />
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
+                    <th className="w-90 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Email
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap block md:table-cell">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap block md:table-cell">
                       Date of Joining
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
@@ -473,9 +532,6 @@ function EmployeeInfo() {
                   ) : (
                     employees.map((employee) => (
                       <tr key={employee.id} className="border-b border-gray-200 block md:table-row hover:bg-gray-50">
-                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 block md:table-cell">
-                          {employee.id}
-                        </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 block md:table-cell">
                           {employee.firstName + " " + employee.lastName}
                         </td>

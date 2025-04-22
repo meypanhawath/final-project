@@ -12,28 +12,33 @@ import EmpAttendances from '../../services/empAttendance'
 // --- StatusBadge Component ---
 // Modified to use colors based on "Approve", "Deny", or "Pending"
 const StatusBadge = ({ status }) => {
-  let bgColor = "";
-  let textColor = "";
+  const normalized = status?.toUpperCase();
+  let bgClass = "bg-gray-100";
+  let textClass = "text-gray-800";
 
-  if (status === "Approve") {
-    bgColor = "bg-green-100";
-    textColor = "text-green-800";
-  } else if (status === "Deny") {
-    bgColor = "bg-red-100";
-    textColor = "text-red-800";
-  } else if (status === "Pending") {
-    bgColor = "bg-yellow-100";
-    textColor = "text-yellow-800";
+  if (normalized === "PRESENT") {
+    bgClass = "bg-green-100";
+    textClass = "text-green-800";
+  } else if (normalized === "ON_LEAVE") {
+    bgClass = "bg-yellow-100";
+    textClass = "text-yellow-800";
+  } else if (normalized === "ABSENT") {
+    bgClass = "bg-red-100";
+    textClass = "text-red-800";
   }
 
   return (
     <span
-      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap ${bgColor} ${textColor}`}
+      className={`
+        ${bgClass} ${textClass}
+        px-3 py-1 inline-flex text-xs leading-5 font-semibold 
+        rounded-full whitespace-nowrap
+      `}
     >
       {status}
     </span>
   );
-};
+};  
 
 // --- Mock Data ---
 // Adjusted to include only date, day, check-in, check-out, and status.
@@ -125,16 +130,14 @@ useEffect(() => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Day
-                    </th>
+                  
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Check-in
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Check-out
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="w-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
@@ -145,9 +148,7 @@ useEffect(() => {
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                         {attendances.date}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {attendances.day}
-                      </td>
+                      
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                         {attendances.checkInTime}
                       </td>
