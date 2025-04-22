@@ -13,7 +13,7 @@ import {
   HiOutlineChevronRight,
   HiX,
 } from "react-icons/hi";
-import AdminAttendance from "../../services/adminAttendance";
+import AdminAttendance from "../../services/AdminAttendance";
 
 // SidebarItem Component
 const SidebarItem = ({ icon, text, Present, href = "#", onClick }) => (
@@ -382,7 +382,7 @@ function Attendance() {
                     <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">
                       Name
                     </th>
-                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider inline-flex items-center block md:table-cell">
+                    <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider items-center block md:table-cell">
                       Date
                     </th>
                     <th className="w-60 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider block md:table-cell">

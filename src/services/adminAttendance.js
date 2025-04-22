@@ -1,6 +1,6 @@
 import api from "../api";
 
-const adminAttendance = {
+const AdminAttendance = {
   // Register new user
   getAllAttendances: (token, page = 0, size = 20) =>
     api.get(`attendances?page=${page}&size=${size}`, {
@@ -18,4 +18,4 @@ const adminAttendance = {
     })
 };
 
-export default adminAttendance;
+export default AdminAttendance;

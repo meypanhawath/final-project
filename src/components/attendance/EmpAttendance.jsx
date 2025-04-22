@@ -7,7 +7,7 @@ import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
 } from "react-icons/hi";
-import EmpAttendances from '../../services/empAttendance'
+import EmpAttendances from '../../services/EmpAttendance'
 
 // --- StatusBadge Component ---
 // Modified to use colors based on "Approve", "Deny", or "Pending"
